@@ -49,7 +49,7 @@ VITE_API_BASE_URL=/api
 VITE_SOCKET_URL=http://localhost:8000
 ```
 
-Do not put Google or alert-ingestion secrets in Vite variables. They are delivered to the browser. The existing `.env.example` contains AI Studio placeholders; the active source does not read `GEMINI_API_KEY` or `APP_URL` from it.
+Do not put Google or alert-ingestion secrets in Vite variables. They are delivered to the browser. The existing `.env.example` contains AI Studio placeholders; the active source does not read `APP_URL` from it.
 
 ## Active Data Flow
 
