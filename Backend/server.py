@@ -404,7 +404,7 @@ async def process_dispatch_chat(request: DispatchChatRequest):
 
     # 2. FEED REAL DATA INTO GEMINI
     prompt = f"""
-    You are ClimaGuard Verified Dispatch, an AI tactical routing assistant for {request.region}.
+    You are APADA-SETU Verified Dispatch, an AI tactical routing assistant for {request.region}.
     
     The user entered the command: "{request.query}"
     

@@ -58,7 +58,7 @@ export const LandfallRescueModeView: React.FC<LandfallRescueModeViewProps> = ({
       const systemMsg: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         sender: 'system',
-        senderName: 'ClimaGuard Verified Dispatch',
+        senderName: 'APADA-SETU Verified Dispatch',
         text: aiData.text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' IST',
         verifiedRoute: aiData.verifiedRoute

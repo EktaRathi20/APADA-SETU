@@ -281,7 +281,7 @@ export const InsuranceRecoveryModeView: React.FC<InsuranceRecoveryModeViewProps>
               <span>United Nations Environment Programme (UNEP) SDG Alignment</span>
             </h3>
             <p className={`text-xs ${isLightMode ? 'text-slate-500' : 'text-slate-400'}`}>
-              Direct contribution of ClimaGuard early warning and nature-based mangrove buffering to 2030 Global Agenda.
+              Direct contribution of APADA-SETU early warning and nature-based mangrove buffering to 2030 Global Agenda.
             </p>
           </div>
           <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border self-start ${

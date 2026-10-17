@@ -277,7 +277,7 @@ export const INITIAL_CHAT: ChatMessage[] = [
   {
     id: 'msg-1',
     sender: 'system',
-    senderName: 'ClimaGuard Verified Dispatch',
+    senderName: 'APADA-SETU Verified Dispatch',
     text: 'Operations Dispatch Terminal initialized. Connected to River Sensor Grid (GloFAS), IMD Doppler Radar, and Municipal IoT water depth telemetry. All queries are answered with verified ground clearance data.',
     timestamp: '14:02 IST'
   },
@@ -291,7 +291,7 @@ export const INITIAL_CHAT: ChatMessage[] = [
   {
     id: 'msg-3',
     sender: 'system',
-    senderName: 'ClimaGuard Verified Dispatch',
+    senderName: 'APADA-SETU Verified Dispatch',
     text: 'Verified Routing Generated for Ambulance Unit 3:',
     timestamp: '14:06 IST',
     verifiedRoute: {
@@ -445,7 +445,7 @@ export const HISTORICAL_DISASTERS: HistoricalDisaster[] = [
     economicDamage: '₹102,000 Crore ($13.8B USD)',
     description: 'The strongest cyclone to strike the Ganges Delta since 1737. Caused widespread power grid collapse, uprooted 15,000+ trees in Kolkata, submerged Netaji Subhash Chandra Bose Airport, and submerged 28% of the Sundarbans.',
     lessonsApplied: [
-      'ClimaGuard T-48 Hours countdown and automated SMS broadcast protocol',
+      'APADA-SETU T-48 Hours countdown and automated SMS broadcast protocol',
       'Underground electrical power cable conversions in high-density wards',
       'Satellite Earth observation bio-shield monitoring for Sundarbans preservation'
     ],
@@ -572,7 +572,7 @@ export const HISTORICAL_DISASTERS: HistoricalDisaster[] = [
     lessonsApplied: [
       'Foundational catalyst for modern Indian early warning architecture',
       'Creation of the National Disaster Response Force (NDRF)',
-      'Development of ClimaGuard baseline operational screening paradigms'
+      'Development of APADA-SETU baseline operational screening paradigms'
     ],
     satelliteTag: 'INSAT-1D Satellite Infrared & Historical Synoptic Chart 1999',
     severityColor: 'red'

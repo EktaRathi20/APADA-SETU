@@ -75,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">ClimaGuard</span>
+                <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">APADA-SETU</span>
               </div>
               <div className="text-[10px] text-slate-500 tracking-wider">
                 Anticipate <span className="text-slate-300">·</span> Prepare <span className="text-slate-300">·</span> Stay Safe

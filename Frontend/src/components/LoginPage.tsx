@@ -101,7 +101,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">ClimaGuard</span>
+              <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">APADA-SETU</span>
             </div>
             <div className="text-[11px] text-slate-500">
               Multi-Hazard Early Warning & Logistics Command
@@ -289,7 +289,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
                   <Lock className="w-4 h-4" />
-                  <span>Sign In to ClimaGuard Command</span>
+                  <span>Sign In to APADA-SETU Command</span>
                 </button>
               </div>
 
