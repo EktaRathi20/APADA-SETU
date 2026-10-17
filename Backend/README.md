@@ -18,7 +18,7 @@ Installable Python packages are listed in `requirements.txt`.
 ## Setup (PowerShell)
 
 ```powershell
-cd C:\node\DRAFT-I\Backend
+open terminal at Backend folder
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip

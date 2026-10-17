@@ -1,0 +1,48 @@
+{
+  "region_target": "vizag",
+  "radius_meters": 5000,
+  "timestamp": "2026-10-17T15:24:29.195321+00:00",
+  "facilities": {
+    "hospitals": [
+      {
+        "name": "KIMS-ICON Hospital, Vizag",
+        "address": "Sheela Nagar, Post, BHPV Twp, Visakhapatnam, Gajuwaka, Andhra Pradesh 530012, India",
+        "lat": 17.714382099999998,
+        "lon": 83.19578419999999
+      },
+      {
+        "name": "INHS Kalyani",
+        "address": "malkapuram, Gandhigram Post, M7P2+P2V, Nausena Baugh, Visakhapatnam, Andhra Pradesh 530005, India",
+        "lat": 17.687127099999998,
+        "lon": 83.2505089
+      },
+      {
+        "name": "RK Hospital",
+        "address": "Chinagantyada, Chaitanya Nagar, Gajuwaka, Andhra Pradesh 530026, India",
+        "lat": 17.682534099999998,
+        "lon": 83.1969804
+      },
+      {
+        "name": "Vasan Eye Care Hospital",
+        "address": "No 8/13/7, NH 16, nearby Amaravathi Hotel, Near Amaravathi Hotel, Opposite 38 Bus Stop, Gajuwaka, Andhra Pradesh 530026, India",
+        "lat": 17.686422999999998,
+        "lon": 83.204616
+      },
+      {
+        "name": "Pavan Sai Hospital",
+        "address": "28-35-31, Near Mee Seva Office, R. H. Colony, Vadlapudi, Kurmannapalem, Visakhapatnam, Gajuwaka, Andhra Pradesh 530046, India",
+        "lat": 17.688593900000004,
+        "lon": 83.1732158
+      }
+    ],
+    "shelters": [
+      {
+        "name": "Community Welfare Centre",
+        "address": "Plot No.128, Nadupuru Main Road, Samatha Nagar, Gajuwaka, Kothakarnavani Palem, Pedagantyada, Gajuwaka, Andhra Pradesh 530044, India",
+        "lat": 17.6736133,
+        "lon": 83.20159389999999
+      }
+    ],
+    "source_errors": {}
+  }
+}
