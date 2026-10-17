@@ -1,0 +1,33 @@
+# Python bytecode and test/tool caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+ingestion_layer/__pycache__/
+
+# Virtual environments and packaging output
+.venv/
+venv/
+env/
+ENV/
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Local secrets and Earth Engine credentials
+.env*
+!.env.example
+.local/
+credentials.json
+token.json
+*service-account*.json
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db

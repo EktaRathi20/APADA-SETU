@@ -1,0 +1,6 @@
+{
+  "name": "ClimaGuard - Climate Hazard & Disaster Resilience System",
+  "description": "Comprehensive climate hazard intelligence, cyclone threat detection, municipal task management, live emergency dispatch, and parametric recovery platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
