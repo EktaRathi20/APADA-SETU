@@ -1,11 +1,11 @@
-# CIIVF Digital Twin: Project Overview
+# APADA SETU: Project Overview
 
 **Audience:** project reviewers and developers  
 **Snapshot:** 2026-09-27
 
 ## Purpose
 
-CIIVF is a coastal climate-risk dashboard prototype. It combines regional weather, nearby facilities, population estimates, cyclone-track history, and a live climate-alert feed. It is a decision-support prototype, not an official warning service or a replacement for government emergency systems.
+APADA SETU is a coastal climate-risk dashboard prototype. It combines regional weather, nearby facilities, population estimates, cyclone-track history, and a live climate-alert feed. It is a decision-support prototype, not an official warning service or a replacement for government emergency systems.
 
 ## Architecture
 
@@ -42,23 +42,23 @@ Some frontend packages declared in `package.json` (including Express, frontend d
 
 | Path | Responsibility |
 | --- | --- |
-| `CIIVF-Frontend/src/App.tsx` | Region selection, API loading, page navigation, and dashboard composition |
-| `CIIVF-Frontend/src/api.ts` | Typed REST contracts and requests |
-| `CIIVF-Frontend/src/climateAlerts.ts`, `useClimateAlerts.ts` | Alert contracts, REST snapshot, Socket.IO connection, unread state |
-| `CIIVF-Frontend/src/components/MapComponent.tsx` | OpenStreetMap basemap and coordinate-based facility markers |
-| `CIIVF-Frontend/src/components/HistoricalDisastersView.tsx` | NOAA-backed cyclone track history |
-| `CIIVF-Frontend/src/components/ClimateAlertInbox.tsx` | Alert list and detail view |
-| `CIIVF-Backend/whatsapp.py` | Twilio Verify OTP, rate-limited SQLite subscriber registry, and WhatsApp template sender |
-| `CIIVF-Frontend/src/components/modes/`, `src/data/mockData.ts` | Legacy/demo workflow components; non-overview workflows are not connected in the active app |
-| `CIIVF-Backend/server.py` | FastAPI routes, alert validation/ingest, Socket.IO ASGI wrapper |
-| `CIIVF-Backend/ingestion_layer/constant.py` | Region names, map bounds, coordinates, and history search radius |
-| `CIIVF-Backend/ingestion_layer/weather.py` | Google current conditions and seven-day forecast normalization |
-| `CIIVF-Backend/ingestion_layer/places.py` | Google Places searches, diagnostics, and strict 5 km result filtering |
-| `CIIVF-Backend/ingestion_layer/population.py` | Earth Engine WorldPop population query |
-| `CIIVF-Backend/ingestion_layer/disaster_history.py` | NOAA download, region-distance filtering, and six-hour cache |
-| `CIIVF-Backend/ingestion_layer/gee.py` | Earth Engine setup and Sentinel-1 SAR image retrieval |
-| `CIIVF-Backend/ingestion_layer/index.py` | Batch ingestion script that writes files under `data/ingested`; not called by the HTTP API |
-| `CIIVF-Backend/utils/list_models.py` | Optional Gemini model-listing utility |
+| `Frontend/src/App.tsx` | Region selection, API loading, page navigation, and dashboard composition |
+| `Frontend/src/api.ts` | Typed REST contracts and requests |
+| `Frontend/src/climateAlerts.ts`, `useClimateAlerts.ts` | Alert contracts, REST snapshot, Socket.IO connection, unread state |
+| `Frontend/src/components/MapComponent.tsx` | OpenStreetMap basemap and coordinate-based facility markers |
+| `Frontend/src/components/HistoricalDisastersView.tsx` | NOAA-backed cyclone track history |
+| `Frontend/src/components/ClimateAlertInbox.tsx` | Alert list and detail view |
+| `Backend/whatsapp.py` | Twilio Verify OTP, rate-limited SQLite subscriber registry, and WhatsApp template sender |
+| `Frontend/src/components/modes/`, `src/data/mockData.ts` | Legacy/demo workflow components; non-overview workflows are not connected in the active app |
+| `Backend/server.py` | FastAPI routes, alert validation/ingest, Socket.IO ASGI wrapper |
+| `Backend/ingestion_layer/constant.py` | Region names, map bounds, coordinates, and history search radius |
+| `Backend/ingestion_layer/weather.py` | Google current conditions and seven-day forecast normalization |
+| `Backend/ingestion_layer/places.py` | Google Places searches, diagnostics, and strict 5 km result filtering |
+| `Backend/ingestion_layer/population.py` | Earth Engine WorldPop population query |
+| `Backend/ingestion_layer/disaster_history.py` | NOAA download, region-distance filtering, and six-hour cache |
+| `Backend/ingestion_layer/gee.py` | Earth Engine setup and Sentinel-1 SAR image retrieval |
+| `Backend/ingestion_layer/index.py` | Batch ingestion script that writes files under `data/ingested`; not called by the HTTP API |
+| `Backend/utils/list_models.py` | Optional Gemini model-listing utility |
 
 ## Completed
 
@@ -98,5 +98,5 @@ Some frontend packages declared in `package.json` (including Express, frontend d
 
 ## Run Guides
 
-- [Frontend setup and development guide](CIIVF-Frontend/README.md)
-- [Backend setup, API, and provider guide](CIIVF-Backend/README.md)
+- [Frontend setup and development guide](Frontend/README.md)
+- [Backend setup, API, and provider guide](Backend/README.md)

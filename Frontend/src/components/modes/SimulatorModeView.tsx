@@ -60,7 +60,7 @@ export const SimulatorModeView: React.FC<SimulatorModeViewProps> = ({
   
   const whatsappPreview = broadcastResult?.whatsapp_preview ?? (
     tier
-      ? `CIIVF SIMULATION EXERCISE, not a live or official warning. Zone: ${tier}. Area: ${selectedWard || regionName}, ${regionName}. Simulated conditions: wind ${conditions?.wind_speed_kmh ?? 'unavailable'} km/h, pressure ${conditions?.pressure_hpa ?? 'unavailable'} hPa, storm surge ${conditions?.storm_surge_meters?.toFixed(1) ?? 'unavailable'} m. This message is for testing only.`
+      ? `APADA-SETU SIMULATION EXERCISE, not a live or official warning. Zone: ${tier}. Area: ${selectedWard || regionName}, ${regionName}. Simulated conditions: wind ${conditions?.wind_speed_kmh ?? 'unavailable'} km/h, pressure ${conditions?.pressure_hpa ?? 'unavailable'} hPa, storm surge ${conditions?.storm_surge_meters?.toFixed(1) ?? 'unavailable'} m. This message is for testing only.`
       : 'Select a simulation zone to preview its WhatsApp message.'
   );
 

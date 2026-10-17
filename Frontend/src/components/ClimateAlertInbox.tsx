@@ -143,7 +143,7 @@ export function ClimateAlertInbox({
                 <Detail label="Coordinates" value={selectedAlert.location.latitude === null || selectedAlert.location.longitude === null ? 'Not provided' : `${selectedAlert.location.latitude}, ${selectedAlert.location.longitude}`} />
                 <Detail label="Source" value={selectedAlert.source} />
                 <Detail label="Observed at" value={formatDate(selectedAlert.observed_at)} />
-                <Detail label="Received by CIIVF" value={formatDate(selectedAlert.received_at)} />
+                <Detail label="Received by APADA-SETU" value={formatDate(selectedAlert.received_at)} />
               </div>
 
               <div>

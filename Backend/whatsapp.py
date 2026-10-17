@@ -256,8 +256,8 @@ def send_whatsapp_template_message(phone, variables):
 def send_welcome_message(phone):
     send_whatsapp_message(
         phone,
-        "Welcome to CIIVF WhatsApp alerts. Your number is verified and subscribed to climate-risk notifications. "
-        "To stop receiving alerts, unsubscribe in CIIVF Settings.",
+        "Welcome to APADA-SETU WhatsApp alerts. Your number is verified and subscribed to climate-risk notifications. "
+        "To stop receiving alerts, unsubscribe in APADA-SETU Settings.",
     )
 
 
@@ -273,7 +273,7 @@ def send_alert_to_subscribers(alert):
     sent_count = 0
     for phone in phones:
         body = (
-            f"CIIVF climate alert\nSeverity: {str(alert['severity']).upper()}\n"
+            f"APADA-SETU climate alert\nSeverity: {str(alert['severity']).upper()}\n"
             f"Location: {alert['location']['name']}\n{alert['title']}\n\n{alert['description']}"
         )
         if send_whatsapp_message(phone, body):

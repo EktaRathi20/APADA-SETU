@@ -1,6 +1,6 @@
-# CIIVF Digital Twin
+# APADA-SETU
 
-CIIVF is a coastal climate-risk dashboard prototype for exploring regional weather, nearby critical facilities, population estimates, historical cyclone tracks, and climate alerts. It is a decision-support prototype, not an official warning service or a replacement for government emergency systems.
+APADA-SETU is a coastal climate-risk dashboard prototype for exploring regional weather, nearby critical facilities, population estimates, historical cyclone tracks, and climate alerts. It is a decision-support prototype, not an official warning service or a replacement for government emergency systems.
 
 This repository contains a React/Vite frontend and a Python FastAPI + Socket.IO backend. The frontend calls the backend for data; provider credentials belong on the backend only.
 
@@ -30,7 +30,7 @@ flowchart LR
         PLACES["Google Places API\n(Hospitals & Shelters)"]
     end
 
-    subgraph Backend [CIIVF Backend - FastAPI]
+    subgraph Backend [Backend - FastAPI]
         INGEST["Ingestion & Normalization\n(Schema Validation)"]
         CACHE[("In-Memory Cache\n(TTL & Rate Defense)")]
         FALLBACK{"Live Data\nActive?"}
@@ -127,14 +127,14 @@ The Vite development server listens on port `3000` and proxies `/api` and `/sock
 
 | Path | Purpose |
 | --- | --- |
-| `CIIVF-Frontend/` | React 19, TypeScript, Vite, dashboard UI and map |
-| `CIIVF-Frontend/src/App.tsx` | Dashboard shell, region selection, page state, data loading |
-| `CIIVF-Frontend/src/api.ts` | Typed API requests |
-| `CIIVF-Frontend/src/useClimateAlerts.ts` | Alert snapshot, Socket.IO events, unread state |
-| `CIIVF-Backend/server.py` | FastAPI routes, alert handling, Socket.IO ASGI app |
-| `CIIVF-Backend/ingestion_layer/` | Weather, facilities, population, Earth Engine, NOAA, caching, and intelligence |
-| `CIIVF-Backend/whatsapp.py` | Optional Twilio verification and WhatsApp delivery |
-| `CIIVF-Backend/utils/list_models.py` | Optional Gemini model-listing utility |
+| `Frontend/` | React 19, TypeScript, Vite, dashboard UI and map |
+| `Frontend/src/App.tsx` | Dashboard shell, region selection, page state, data loading |
+| `Frontend/src/api.ts` | Typed API requests |
+| `Frontend/src/useClimateAlerts.ts` | Alert snapshot, Socket.IO events, unread state |
+| `Backend/server.py` | FastAPI routes, alert handling, Socket.IO ASGI app |
+| `Backend/ingestion_layer/` | Weather, facilities, population, Earth Engine, NOAA, caching, and intelligence |
+| `Backend/whatsapp.py` | Optional Twilio verification and WhatsApp delivery |
+| `Backend/utils/list_models.py` | Optional Gemini model-listing utility |
 | `PROJECT_OVERVIEW.md` | System overview, current status, and developer handoff |
 
 ## Requirements
@@ -147,12 +147,12 @@ The Vite development server listens on port `3000` and proxies `/api` and `/sock
 
 ## Quick start on Windows
 
-Open **two PowerShell terminals** at the repository root (`C:\node\CIIVF-Monorepo` in this checkout). Keep the backend virtual environment active in the backend terminal.
+Open **two PowerShell terminals** at the repository root (`C:\node\Monorepo` in this checkout). Keep the backend virtual environment active in the backend terminal.
 
 ### 1. Install and start the backend
 
 ```powershell
-Set-Location C:\node\CIIVF-Monorepo\CIIVF-Backend
+Set-Location C:\node\Monorepo\Backend
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -160,7 +160,7 @@ python -m pip install -r requirements.txt
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-Edit `CIIVF-Backend/.env` and add the provider credentials you need. Do not overwrite an existing `.env`. Then start the API:
+Edit `Backend/.env` and add the provider credentials you need. Do not overwrite an existing `.env`. Then start the API:
 
 ```powershell
 python -m uvicorn server:app --reload --host 127.0.0.1 --port 8000
@@ -178,7 +178,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 In the second terminal:
 
 ```powershell
-Set-Location C:\node\CIIVF-Monorepo\CIIVF-Frontend
+Set-Location C:\node\Monorepo\Frontend
 npm install --legacy-peer-deps
 npm run dev
 ```
@@ -190,7 +190,7 @@ Open the local URL Vite prints (normally `http://localhost:3000`). If port `3000
 Use two terminals from the repository root. For the backend:
 
 ```bash
-cd CIIVF-Backend
+cd Backend
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
@@ -198,7 +198,7 @@ python -m pip install -r requirements.txt
 test -f .env || cp .env.example .env
 ```
 
-Configure `CIIVF-Backend/.env`, then run:
+Configure `Backend/.env`, then run:
 
 ```bash
 python -m uvicorn server:app --reload --host 127.0.0.1 --port 8000
@@ -207,7 +207,7 @@ python -m uvicorn server:app --reload --host 127.0.0.1 --port 8000
 In the second terminal:
 
 ```bash
-cd CIIVF-Frontend
+cd Frontend
 npm install --legacy-peer-deps
 npm run dev
 ```
@@ -216,7 +216,7 @@ Open the URL printed by Vite, normally `http://localhost:3000`.
 
 ## Configuration and data providers
 
-Backend variables are documented in `CIIVF-Backend/.env.example`. Put secrets only in `CIIVF-Backend/.env`; never put provider keys or the alert-ingestion token in frontend variables.
+Backend variables are documented in `Backend/.env.example`. Put secrets only in `Backend/.env`; never put provider keys or the alert-ingestion token in frontend variables.
 
 | Variable | Needed for | Notes |
 | --- | --- | --- |
@@ -242,7 +242,7 @@ The frontend optionally accepts `VITE_API_BASE_URL` and `VITE_SOCKET_URL`. Defau
 
 ## Run commands
 
-Run frontend commands from `CIIVF-Frontend/`:
+Run frontend commands from `Frontend/`:
 
 | Command | What it does |
 | --- | --- |
@@ -254,7 +254,7 @@ Run frontend commands from `CIIVF-Frontend/`:
 
 For example, after building, run `npm run preview -- --host 127.0.0.1`. Production preview requires a backend URL/reverse proxy if the app should load live API data.
 
-Run backend commands from `CIIVF-Backend/` with `.venv` activated:
+Run backend commands from `Backend/` with `.venv` activated:
 
 ```powershell
 # Start API with reload
@@ -270,7 +270,7 @@ python -m ingestion_layer.index
 python utils\list_models.py
 ```
 
-The batch ingestion command calls external providers and writes cached JSON/image files under `CIIVF-Backend/data/ingested/`. It is not required to start the web dashboard. There is no committed automated test suite at this time.
+The batch ingestion command calls external providers and writes cached JSON/image files under `Backend/data/ingested/`. It is not required to start the web dashboard. There is no committed automated test suite at this time.
 
 ## API reference
 
@@ -424,5 +424,5 @@ Alert records live only in process memory and disappear when the backend restart
 ## More detail
 
 - [Project overview and developer handoff](PROJECT_OVERVIEW.md)
-- [Backend setup, providers, and WhatsApp configuration](CIIVF-Backend/README.md)
-- [Frontend details and troubleshooting](CIIVF-Frontend/README.md)
+- [Backend setup, providers, and WhatsApp configuration](Backend/README.md)
+- [Frontend details and troubleshooting](Frontend/README.md)

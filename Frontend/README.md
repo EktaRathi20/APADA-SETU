@@ -1,6 +1,6 @@
-# CIIVF Frontend
+# APADA-SETU Frontend
 
-React dashboard for the CIIVF coastal climate-risk prototype. For cross-project architecture and developer handoff, see [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md).
+React dashboard for the APADA-SETU coastal climate-risk prototype. For cross-project architecture and developer handoff, see [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md).
 
 ## Stack
 
@@ -21,7 +21,7 @@ The manifest also declares packages that are not imported by the active dashboar
 ## Install and Run (PowerShell)
 
 ```powershell
-cd C:\node\CIIVF-DRAFT-I\CIIVF-Frontend
+cd C:\node\DRAFT-I\Frontend
 npm install --legacy-peer-deps
 npm run dev
 ```
@@ -95,4 +95,4 @@ The overview currently displays:
 
 Open **Settings → Notifications**, enable WhatsApp, enter a number in E.164 format (for example `+14155552671`), request the WhatsApp code, and verify it. To opt out, turn the toggle off and verify the opt-out code. Dashboard alerts continue even when WhatsApp is disabled.
 
-Twilio secrets are configured only in `CIIVF-Backend/.env`; they must never be placed in frontend `.env` files. WhatsApp provider setup is documented in the [backend README](../CIIVF-Backend/README.md#twilio-whatsapp-setup).
+Twilio secrets are configured only in `Backend/.env`; they must never be placed in frontend `.env` files. WhatsApp provider setup is documented in the [backend README](../Backend/README.md#twilio-whatsapp-setup).

@@ -1,6 +1,6 @@
-# CIIVF Backend
+# APADA-SETU Backend
 
-FastAPI service for the CIIVF climate-risk dashboard. The system architecture and current developer backlog are in [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md).
+FastAPI service for the APADA-SETU climate-risk dashboard. The system architecture and current developer backlog are in [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md).
 
 ## Stack and Modules
 
@@ -18,7 +18,7 @@ Installable Python packages are listed in `requirements.txt`.
 ## Setup (PowerShell)
 
 ```powershell
-cd C:\node\CIIVF-DRAFT-I\CIIVF-Backend
+cd C:\node\DRAFT-I\Backend
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -53,7 +53,7 @@ Set the values in `.env`:
 | `TWILIO_VERIFY_SERVICE_SID` | Twilio Verify Service SID used to send/check WhatsApp OTPs |
 | `TWILIO_MESSAGING_SERVICE_SID` | Messaging Service SID with an approved WhatsApp sender attached |
 | `TWILIO_WHATSAPP_CONTENT_SID` | Approved Content Template SID used for outgoing alert notifications |
-| `WHATSAPP_DATABASE_PATH` | Optional SQLite path; defaults to ignored `CIIVF-Backend/.local/whatsapp.sqlite3` |
+| `WHATSAPP_DATABASE_PATH` | Optional SQLite path; defaults to ignored `Backend/.local/whatsapp.sqlite3` |
 
 Authenticate Earth Engine in a browser-enabled terminal and ensure the Earth Engine API is enabled for the project:
 

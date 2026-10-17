@@ -43,7 +43,7 @@ export const LandfallRescueModeView: React.FC<LandfallRescueModeViewProps> = ({
     setIsTyping(true);
 
     try {
-      const response = await fetch('https://ciivf-monorepo-backend-6kiw4q5z7q-ew.a.run.app/api/dispatch-chat', {
+      const response = await fetch('https://monorepo-backend-6kiw4q5z7q-ew.a.run.app/api/dispatch-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

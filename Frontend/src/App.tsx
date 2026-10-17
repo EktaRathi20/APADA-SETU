@@ -289,7 +289,7 @@ export default function App() {
   }, [isHistoricalView, selectedRegionKey]);
 
   if (regionLoading && !selectedCity) {
-    return <div className="min-h-screen grid place-items-center bg-slate-100 p-6 text-sm text-slate-700"><div role="status" className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm"><LoaderCircle size={18} className="animate-spin text-cyan-800" /><span>Connecting to the CIIVF API and loading regions…</span></div></div>;
+    return <div className="min-h-screen grid place-items-center bg-slate-100 p-6 text-sm text-slate-700"><div role="status" className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm"><LoaderCircle size={18} className="animate-spin text-cyan-800" /><span>Connecting to the APADA-SETU API and loading regions…</span></div></div>;
   }
 
   if (!selectedCity || !selectedRegion) {

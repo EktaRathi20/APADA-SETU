@@ -37,7 +37,7 @@ from whatsapp import (
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 api_app = FastAPI(
-    title="CIIVF Digital Twin API",
+    title="APADA-SETU API",
     description="Backend API powering the Municipal Resilience & Disaster Digital Twin",
     version="1.0.0"
 )
@@ -68,7 +68,7 @@ def startup_event():
 # 3. Health check route
 @api_app.get("/api/health")
 def health_check():
-    return {"status": "online", "service": "CIIVF Engine"}
+    return {"status": "online", "service": "APADA-SETU Engine"}
 
 # 4. Population API Route
 @api_app.get("/api/population")
@@ -266,7 +266,7 @@ async def emit_risk_assessment_alert(region_key: str, result: dict[str, Any], ba
         "severity": severity,
         "title": f"{risk_level} risk screening · {region.get('name', region_key)}",
         "description": (
-            f"CIIVF screening detected {risk_level} risk (score {assessment.get('score', 0)}). "
+            f"APADA-SETU screening detected {risk_level} risk (score {assessment.get('score', 0)}). "
             f"This is not an official warning or evacuation order. Factors: "
             f"{'; '.join(str(factor) for factor in factors) or 'elevated current conditions'}."
         ),
@@ -276,7 +276,7 @@ async def emit_risk_assessment_alert(region_key: str, result: dict[str, Any], ba
             "latitude": (region.get("min_lat", 0) + region.get("max_lat", 0)) / 2,
             "longitude": (region.get("min_lon", 0) + region.get("max_lon", 0)) / 2,
         },
-        "source": "CIIVF deterministic risk screening",
+        "source": "APADA-SETU deterministic risk screening",
         "observed_at": data_quality.get("telemetry_timestamp") or result.get("generated_at"),
         "received_at": datetime.now(timezone.utc).isoformat(),
         "measurements": {
@@ -344,7 +344,7 @@ async def broadcast_simulator_alert(
     }[tier]
     region_name = region["name"]
     message_description = (
-        f"CIIVF SIMULATION EXERCISE, not a live or official warning. Zone: {tier}. "
+        f"APADA-SETU SIMULATION EXERCISE, not a live or official warning. Zone: {tier}. "
         f"Area: {payload.ward}, {region_name}. Simulated conditions: "
         f"wind {values['wind_speed_kmh']} km/h, pressure {values['pressure_hpa']} hPa, "
         f"storm surge {values['storm_surge_meters']:.1f} m. This message is for testing only."

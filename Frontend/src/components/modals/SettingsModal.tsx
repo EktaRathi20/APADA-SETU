@@ -17,11 +17,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [activeTab, setActiveTab] = useState<'general' | 'thresholds' | 'gis' | 'alerts' | 'provenance'>('general');
   const [defaultCity, setDefaultCity] = useState('Kolkata');
   const [savedSuccess, setSavedSuccess] = useState(false);
-  const [whatsappEnabled, setWhatsappEnabled] = useState(() => localStorage.getItem('ciivf-whatsapp-enabled') === 'true');
-  const [whatsappNumber, setWhatsappNumber] = useState(() => localStorage.getItem('ciivf-whatsapp-number') ?? '');
+  const [whatsappEnabled, setWhatsappEnabled] = useState(() => localStorage.getItem('whatsapp-enabled') === 'true');
+  const [whatsappNumber, setWhatsappNumber] = useState(() => localStorage.getItem('whatsapp-number') ?? '');
   const [whatsappCode, setWhatsappCode] = useState('');
   const [whatsappAction, setWhatsappAction] = useState<'subscribe' | 'unsubscribe'>('subscribe');
-  const [whatsappStep, setWhatsappStep] = useState<'idle' | 'code-sent' | 'verified'>(() => localStorage.getItem('ciivf-whatsapp-verified') === 'true' ? 'verified' : 'idle');
+  const [whatsappStep, setWhatsappStep] = useState<'idle' | 'code-sent' | 'verified'>(() => localStorage.getItem('whatsapp-verified') === 'true' ? 'verified' : 'idle');
   const [whatsappConfiguration, setWhatsappConfiguration] = useState<WhatsAppConfigurationResponse | null>(null);
   const [whatsappError, setWhatsappError] = useState<string | null>(null);
   const [whatsappWelcomeNotice, setWhatsappWelcomeNotice] = useState<string | null>(null);
@@ -71,9 +71,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     try {
       const result = await api.checkWhatsAppVerification(whatsappNumber.trim(), whatsappCode.trim(), whatsappAction);
       if (whatsappAction === 'subscribe') {
-        localStorage.setItem('ciivf-whatsapp-enabled', 'true');
-        localStorage.setItem('ciivf-whatsapp-number', whatsappNumber.trim());
-        localStorage.setItem('ciivf-whatsapp-verified', 'true');
+        localStorage.setItem('whatsapp-enabled', 'true');
+        localStorage.setItem('whatsapp-number', whatsappNumber.trim());
+        localStorage.setItem('whatsapp-verified', 'true');
         setWhatsappEnabled(true);
         setWhatsappStep('verified');
         setWhatsappWelcomeNotice(result.welcome_message === 'queued'
@@ -82,9 +82,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             ? 'This number was already subscribed; no duplicate welcome message was sent.'
             : 'Verified and subscribed. Sandbox message delivery is not configured.');
       } else {
-        localStorage.removeItem('ciivf-whatsapp-enabled');
-        localStorage.removeItem('ciivf-whatsapp-number');
-        localStorage.removeItem('ciivf-whatsapp-verified');
+        localStorage.removeItem('whatsapp-enabled');
+        localStorage.removeItem('whatsapp-number');
+        localStorage.removeItem('whatsapp-verified');
         setWhatsappEnabled(false);
         setWhatsappNumber('');
         setWhatsappStep('idle');

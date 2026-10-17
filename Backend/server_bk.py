@@ -28,7 +28,7 @@ from whatsapp import (
 )
 
 api_app = FastAPI(
-    title="CIIVF Digital Twin API",
+    title="APADA-SETU API",
     description="Backend API powering the Municipal Resilience & Disaster Digital Twin",
     version="1.0.0"
 )
@@ -59,7 +59,7 @@ def startup_event():
 # 3. Health check route
 @api_app.get("/api/health")
 def health_check():
-    return {"status": "online", "service": "CIIVF Engine"}
+    return {"status": "online", "service": "APADA-SETU Engine"}
 
 # 4. Population API Route
 @api_app.get("/api/population")
