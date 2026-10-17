@@ -81,6 +81,7 @@ def get_population(region: str = Query("vizag", description="Region key (vizag, 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# 5. Shelter API Route
 @api_app.get("/api/shelter")
 def get_shelter(region: str = Query("vizag", description="Region key (vizag, odisha, chennai, etc.)")):
     try:
@@ -91,6 +92,7 @@ def get_shelter(region: str = Query("vizag", description="Region key (vizag, odi
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# 6. Current Conditions API Route
 @api_app.get("/api/current-conditions")
 def get_current_conditions(region: str = Query("vizag", description="Region key")):
     try:
@@ -100,6 +102,7 @@ def get_current_conditions(region: str = Query("vizag", description="Region key"
     except RuntimeError as error:
         raise HTTPException(status_code=502, detail=str(error))
 
+# 7. Forecast API Route
 @api_app.get("/api/forecast")
 @api_app.get("/api/forcast", include_in_schema=False)
 def get_forcast(region: str = Query("vizag", description="Region key (vizag, odisha, chennai, etc.)")):
@@ -113,6 +116,7 @@ def get_forcast(region: str = Query("vizag", description="Region key (vizag, odi
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# 8. Historical Disasters API Route
 @api_app.get("/api/history")
 def get_history(region: str = Query("vizag", description="Region key (vizag, odisha, chennai, etc.)")):
     try:
@@ -125,6 +129,7 @@ def get_history(region: str = Query("vizag", description="Region key (vizag, odi
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# 9. Region Data API Route
 @api_app.get("/api/region")
 def get_region():
     try:
@@ -133,6 +138,7 @@ def get_region():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# 10. Alert Ingestion and Simulator Routes
 class AlertLocation(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     region_key: str | None = None
@@ -207,23 +213,9 @@ def check_whatsapp_verification(request: WhatsAppVerificationCheck, background_t
     except RuntimeError as error:
         raise HTTPException(status_code=502, detail=str(error))
 
-
-# sio = socketio.AsyncServer(
-#     async_mode="asgi",
-#     cors_allowed_origins=[
-#         "http://localhost:3000",
-#         "http://127.0.0.1:3000",
-#         "http://localhost:3001",
-#         "http://127.0.0.1:3001",
-#         "http://localhost:5173",
-#         "http://127.0.0.1:5173",
-#         "https://mellifluous-kitten-6f39a8.netlify.app",
-#     ],
-# )
-
 sio = socketio.AsyncServer(
     async_mode="asgi",
-    cors_allowed_origins="*" # Set to "*" temporarily to test if it's a CORS issue
+    cors_allowed_origins="*"
 )
 
 alerts: deque[dict[str, Any]] = deque(maxlen=500)
@@ -387,267 +379,12 @@ async def broadcast_simulator_alert(
         },
     }
 
-# @api_app.get("/api/disaster-intelligence/{region}")
-# async def get_disaster_intelligence(region: str):
-#     try:
-#         unified_data = run_ingestion(region)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Data Ingestion Error: {str(e)}")
-
-#     telemetry = unified_data.get("meteorological_telemetry") or unified_data.get("current_condition") or {}
-#     metrics = telemetry.get("metrics") if isinstance(telemetry, dict) else {}
-#     wind = telemetry.get("wind_speed_kmh")
-#     if wind is None and isinstance(metrics, dict):
-#         wind = metrics.get("peak_wind_kmh") or 0
-#     pressure = telemetry.get("pressure_hpa")
-#     if pressure is None and isinstance(metrics, dict):
-#         pressure = metrics.get("central_pressure_hpa") or 1013
-#     surge_depth_meters = telemetry.get("storm_surge_meters")
-#     if surge_depth_meters is None and isinstance(metrics, dict):
-#         surge_depth_meters = metrics.get("storm_surge_meters") or 0.5
-
-#     if wind is None:
-#         wind = 0
-#     if pressure is None:
-#         pressure = 1013
-#     if surge_depth_meters is None:
-#         surge_depth_meters = 0.5
-
-#     surge_depth_meters = float(surge_depth_meters)
-#     if surge_depth_meters < 0.4:
-#         surge_depth_meters = max(0.4, ((float(wind) - 40) / 100) * 1.8 + (1013 - float(pressure)) * 0.02)
-#     parametric_unlocked = surge_depth_meters >= 1.2
-
-#     region_meta = unified_data.get("region_metadata") or {}
-#     center_lat = ((region_meta.get("min_lat") or 0) + (region_meta.get("max_lat") or 0)) / 2 if region_meta else 0
-#     center_lon = ((region_meta.get("min_lon") or 0) + (region_meta.get("max_lon") or 0)) / 2 if region_meta else 0
-
-#     risk_zones = [
-#         {
-#             "id": "red-zone",
-#             "label": "Red Zone",
-#             "color": "red",
-#             "lat": center_lat + 0.025,
-#             "lon": center_lon + 0.02,
-#             "radius_km": 7.5,
-#             "description": "Immediate evacuation and shelter activation zone"
-#         },
-#         {
-#             "id": "yellow-zone",
-#             "label": "Yellow Zone",
-#             "color": "yellow",
-#             "lat": center_lat + 0.065,
-#             "lon": center_lon + 0.055,
-#             "radius_km": 15,
-#             "description": "Standby and staging zone for logistics and equipment"
-#         }
-#     ]
-
-#     top_analogs = unified_data.get("history", {}).get("historical_analogs", []) if isinstance(unified_data.get("history"), dict) else []
-#     if not top_analogs and isinstance(unified_data.get("history"), dict):
-#         top_analogs = [unified_data["history"]]
-
-#     prompt = f"""
-#     You are the intelligence core of ClimaGuard, an expert disaster management digital twin aligned with NDMA guidelines.
-
-#     Current Telemetry:
-#     - Region: {region}
-#     - Wind Speed: {wind} km/h
-#     - Atmospheric Pressure: {pressure} hPa
-#     - Predicted Storm Surge: {surge_depth_meters} meters
-
-#     Contextual Data (Shelters, Demographics, Historical Analogs):
-#     {json.dumps(unified_data, indent=2)}
-
-#     Based on this data, produce ONLY valid JSON with these exact keys:
-#     {
-#       "primary_analog": "Name of the closest historical cyclone or event",
-#       "risk_zones": [
-#         {"id": "red-zone", "label": "Red Zone", "color": "red", "lat": 17.68, "lon": 83.20, "radius_km": 7.5, "description": "Immediate evacuation zone"},
-#         {"id": "yellow-zone", "label": "Yellow Zone", "color": "yellow", "lat": 17.73, "lon": 83.28, "radius_km": 15, "description": "Standby zone"}
-#       ],
-#       "recommended_tasks": [
-#         {"department": "Municipal Disaster Cell", "location": "Ward 17 and nearest coastline", "description": "Pre-position pumps and suspend low-lying movement", "sub_team": "Field Response Team 1", "status_text": "Start ->"}
-#       ],
-#       "insurance_summary": {
-#         "trigger_met": true,
-#         "trigger_threshold_m": 1.2,
-#         "observed_water_depth_m": 1.42,
-#         "estimated_payout_cr": 14.5,
-#         "headline": "Parametric insurance payout unlocked",
-#         "coverage_focus": ["Coastal wards", "low-lying settlements"]
-#       }
-#     }
-#     """
-
-#     try:
-#         if client is not None:
-#             response = client.models.generate_content(
-#                 model="gemini-2.5-flash",
-#                 contents=prompt,
-#                 config=types.GenerateContentConfig(
-#                     response_mime_type="application/json",
-#                     temperature=0.1,
-#                 ),
-#             )
-#             tactical_insights = json.loads(response.text)
-#         else:
-#             raise RuntimeError("GEMINI_API_KEY is not configured")
-#     except Exception as e:
-#         print(f"Gemini Parsing Error: {e}")
-#         tactical_insights = {
-#             "primary_analog": top_analogs[0].get("matched_cyclone") if top_analogs and isinstance(top_analogs[0], dict) else "Historical analog unavailable",
-#             "risk_zones": risk_zones,
-#             "recommended_tasks": [
-#                 {
-#                     "department": "Municipal Disaster Cell",
-#                     "location": "Coastal wetlands and low-lying settlements",
-#                     "description": "Pre-position pumps, activate shelters, and restrict low-lying movement.",
-#                     "sub_team": "Field Response Team 1",
-#                     "status_text": "Start ->"
-#                 }
-#             ],
-#             "insurance_summary": {
-#                 "trigger_met": parametric_unlocked,
-#                 "trigger_threshold_m": 1.2,
-#                 "observed_water_depth_m": round(surge_depth_meters, 2),
-#                 "estimated_payout_cr": 14.50 if parametric_unlocked else 0.0,
-#                 "headline": "Parametric insurance payout unlocked" if parametric_unlocked else "Trigger not reached",
-#                 "coverage_focus": ["Coastal wards", "critical shelters", "low-lying settlements"]
-#             }
-#         }
-
-#     if isinstance(tactical_insights.get("risk_zones"), list):
-#         for idx, zone in enumerate(tactical_insights["risk_zones"][:2]):
-#             if isinstance(zone, dict):
-#                 zone.setdefault("id", f"zone-{idx + 1}")
-#                 zone.setdefault("label", "Risk Zone")
-#                 zone.setdefault("color", "red" if idx == 0 else "yellow")
-#                 zone.setdefault("lat", center_lat + (0.02 if idx == 0 else 0.07))
-#                 zone.setdefault("lon", center_lon + (0.02 if idx == 0 else 0.06))
-#                 zone.setdefault("radius_km", 7.5 if idx == 0 else 15)
-#                 zone.setdefault("description", "Alert zone")
-#     else:
-#         tactical_insights["risk_zones"] = risk_zones
-
-#     if not isinstance(tactical_insights.get("insurance_summary"), dict):
-#         tactical_insights["insurance_summary"] = {
-#             "trigger_met": parametric_unlocked,
-#             "trigger_threshold_m": 1.2,
-#             "observed_water_depth_m": round(surge_depth_meters, 2),
-#             "estimated_payout_cr": 14.50 if parametric_unlocked else 0.0,
-#             "headline": "Parametric insurance payout unlocked" if parametric_unlocked else "Trigger not reached",
-#             "coverage_focus": ["Coastal wards", "critical shelters", "low-lying settlements"]
-#         }
-
-#     return {
-#         "status": "success",
-#         "region": region,
-#         "telemetry": unified_data,
-#         "ml_prediction": {
-#             "surge_depth_meters": round(surge_depth_meters, 2),
-#             "trigger_parametric_relief": parametric_unlocked,
-#             "disbursement_amount_cr": 14.50 if parametric_unlocked else 0.0
-#         },
-#         "tactical_insights": tactical_insights
-#     }
-# app = socketio.ASGIApp(sio, other_asgi_app=api_app)@api_app.get("/api/disaster-intelligence/{region}")
-# async def get_disaster_intelligence(region: str):
-#     # 1. RUN INGESTION SCRIPT
-#     try:
-#         # Calls your existing function to hit GEE, IMD, WorldPop, and NOAA
-#         unified_data = run_ingestion(region)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Data Ingestion Error: {str(e)}")
-
-#     # 2. EXTRACT ML FEATURES
-#     wind = unified_data["current_condition"].get("wind_speed_kmh", 0)
-#     pressure = unified_data["current_condition"].get("pressure_hpa", 1013)
-
-#     # 3. MOCKED SURGE PREDICTION (Replacing Vertex AI)
-#     # Realistic empirical surge estimate formula for the hackathon demo
-#     surge_depth_meters = round(max(0.4, ((wind - 40) / 100) * 1.8 + (1013 - pressure) * 0.02), 2)
-
-#     # 4. PARAMETRIC RELIEF TRIGGER (Phase 5)
-#     parametric_unlocked = surge_depth_meters >= 1.2
-
-#     # 5. GEMINI 2.5 TACTICAL INSIGHTS (Phase 3)
-#     top_analogs = unified_data.get('disaster_history', {}).get('historical_analogs', [])[:3]
-    
-#     prompt = f"""
-#     You are the intelligence core of ClimaGuard, an expert disaster management digital twin aligned with NDMA guidelines. 
-    
-#     Current Telemetry:
-#     - Region: {region}
-#     - Wind Speed: {wind} km/h
-#     - Atmospheric Pressure: {pressure} hPa
-#     - Predicted Storm Surge: {surge_depth_meters} meters
-    
-#     Contextual Data (Shelters, Demographics, Historical Analogs):
-#     {json.dumps(unified_data, indent=2)}
-    
-#     Based on the predicted surge, wind speed, and historical analogs, analyze the vulnerability of the region. Your job is to recommend urgent tactical tasks that need to be assigned to municipal response teams.
-    
-#     You MUST output ONLY valid JSON without any markdown formatting, backticks, or extra text. The JSON must exactly match this structure:
-    
-#     {{
-#       "primary_analog": "Name of the most similar past cyclone from the data",
-#       "risk_zones": {{
-#         "red_zone": ["List of 2-3 specific high-risk wards or coastal areas requiring immediate CAP evacuation"],
-#         "yellow_zone": ["List of 2-3 specific moderate-risk adjacent areas for standby alerts"]
-#       }},
-#       "recommended_tasks": [
-#         {{
-#           "department": "e.g., PWD Water Supply",
-#           "location": "e.g., Ward 17 & Topsia",
-#           "description": "e.g., Pre-position 22 High-Capacity De-watering Diesel Pumps",
-#           "sub_team": "e.g., Pumps Div Team 3",
-#           "status_text": "Start ->"
-#         }}
-#         // Generate 3 to 4 highly specific, realistic municipal tasks based on the telemetry
-#       ]
-#     }}
-#     """
-    
-#     try:
-#         response = client.models.generate_content(
-#             model="gemini-3.5-flash-lite",
-#             contents=prompt,
-#             config=types.GenerateContentConfig(
-#                 response_mime_type="application/json",
-#                 temperature=0.1,
-#             ),
-#         )
-#         tactical_insights = json.loads(response.text)
-#     except Exception as e:
-#         print(f"Gemini Parsing Error: {e}")
-#         tactical_insights = {
-#             "primary_analog": "Data unavailable",
-#             "vulnerable_infrastructure": ["Coastal Embankments", "Power Grid Substations"],
-#             "recommended_action": "Initiate immediate CAP evacuation and pre-position high-capacity pumps."
-#         }
-
-#     # 6. RETURN FINAL PAYLOAD TO FRONTEND
-#     return {
-#         "status": "success",
-#         "region": region,
-#         "telemetry": unified_data,
-#         "ml_prediction": {
-#             "surge_depth_meters": surge_depth_meters,
-#             "trigger_parametric_relief": parametric_unlocked,
-#             "disbursement_amount_cr": 14.50 if parametric_unlocked else 0.0
-#         },
-#         "tactical_insights": tactical_insights
-#     }
-
 @api_app.get("/api/disaster-intelligence/{region}")
 async def get_disaster_intelligence(region: str, background_tasks: BackgroundTasks):
     result = await build_disaster_intelligence(region, client)
     await emit_risk_assessment_alert(result.get("region", region.strip().lower()), result, background_tasks)
     return result
 
-#------------------NEW CODE---------------#
-# client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 class DispatchChatRequest(BaseModel):
     query: str
