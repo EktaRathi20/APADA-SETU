@@ -225,19 +225,19 @@ export const SimulatorModeView: React.FC<SimulatorModeViewProps> = ({
       {insurance?.note && <p className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-relaxed text-slate-600">{insurance.note}</p>}
 
       {isAlertOpen && tier && (
-        <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-slate-950/55 p-4 backdrop-blur-[2px]" role="presentation">
-          <section role="dialog" aria-modal="true" aria-labelledby="sim-alert-title" className="w-full max-w-lg overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
-            <header className="flex items-start justify-between gap-3 border-b border-slate-200 bg-slate-50 px-5 py-4">
-              <div className="flex items-start gap-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/55 p-2 backdrop-blur-[2px] sm:p-4" role="presentation">
+          <section role="dialog" aria-modal="true" aria-labelledby="sim-alert-title" className="flex max-h-[calc(100dvh_-_1rem)] w-full max-w-lg flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl sm:max-h-[calc(100dvh_-_2rem)]">
+            <header className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-200 bg-slate-50 px-3 py-3 sm:px-5 sm:py-4">
+              <div className="flex min-w-0 items-start gap-2 sm:gap-3">
                 <span className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg ${tier === 'RED' ? 'bg-rose-100 text-rose-700' : tier === 'ORANGE' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-800'}`}><ShieldAlert size={18} /></span>
-                <div>
-                  <h2 id="sim-alert-title" className="text-sm font-bold text-slate-900">{tier} zone exercise alert</h2>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-600">{intelligence?.ai_analysis.summary ?? 'Simulated zone conditions for demonstration.'}</p>
+                <div className="min-w-0">
+                  <h2 id="sim-alert-title" className="break-words text-sm font-bold text-slate-900">{tier} zone exercise alert</h2>
+                  <p className="mt-1 break-words text-xs leading-relaxed text-slate-600">{intelligence?.ai_analysis.summary ?? 'Simulated zone conditions for demonstration.'}</p>
                 </div>
               </div>
-              <button type="button" aria-label="Close alert preview" onClick={() => setIsAlertOpen(false)} className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900"><X size={17} /></button>
+              <button type="button" aria-label="Close alert preview" onClick={() => setIsAlertOpen(false)} className="shrink-0 rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900"><X size={17} /></button>
             </header>
-            <div className="space-y-4 p-5">
+            <div className="min-h-0 space-y-4 overflow-y-auto overscroll-contain p-3 sm:p-5">
               <label className="block text-xs font-semibold text-slate-700" htmlFor="sim-alert-ward">Target ward / response area
                 <select id="sim-alert-ward" value={selectedWard} onChange={event => setSelectedWard(event.target.value)} className="mt-1.5 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-800 focus:border-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-100">
                   {!locations.length && <option value={`${regionName} response area`}>{regionName} response area</option>}
@@ -247,7 +247,7 @@ export const SimulatorModeView: React.FC<SimulatorModeViewProps> = ({
 
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                 <p className="text-xs font-semibold text-slate-800">WhatsApp message preview</p>
-                <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">{whatsappPreview}</p>
+                <p className="mt-1 break-words whitespace-pre-wrap text-xs leading-relaxed text-slate-600">{whatsappPreview}</p>
                 {broadcastResult?.channels.whatsapp !== 'queued' && <p className="mt-2 text-[11px] font-medium text-slate-500">Preview only. No WhatsApp message was sent.</p>}
               </div>
 
@@ -272,7 +272,7 @@ export const SimulatorModeView: React.FC<SimulatorModeViewProps> = ({
 
               <div className="flex flex-col-reverse justify-between gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-center">
                 <p className="text-[10px] leading-relaxed text-slate-500">The WhatsApp recipient is optional. Without a number, the alert goes only to Socket.IO and shows a WhatsApp preview.</p>
-                <button type="button" onClick={handleBroadcast} disabled={isBroadcasting || connectionState !== 'connected'} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-cyan-800 px-3 py-2 text-xs font-semibold text-white hover:bg-cyan-900 disabled:cursor-not-allowed disabled:opacity-50">
+                <button type="button" onClick={handleBroadcast} disabled={isBroadcasting || connectionState !== 'connected'} className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-md bg-cyan-800 px-3 py-2 text-xs font-semibold text-white hover:bg-cyan-900 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
                   {isBroadcasting ? <><LoaderCircle size={14} className="animate-spin" /> Sending…</> : <><BellRing size={14} /> Broadcast test alert</>}
                 </button>
               </div>

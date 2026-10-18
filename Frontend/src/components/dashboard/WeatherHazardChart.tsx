@@ -40,13 +40,13 @@ export const WeatherHazardChart: React.FC<WeatherHazardChartProps> = ({
         <p className={`py-8 text-center text-sm ${labelText}`}>Forecast data is unavailable.</p>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-1.5 text-center mb-3 text-xs">
+          <div className="mb-3 flex gap-2 overflow-x-auto pb-2 text-center text-xs sm:grid sm:grid-cols-4 sm:gap-1.5 sm:overflow-visible sm:pb-0 xl:grid-cols-7">
             {chartForecast.map((day, index) => (
               <div
                 key={`${day.date}-${index}`}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className={`p-1.5 rounded-lg border transition-colors ${hoveredIndex === index ? 'bg-blue-50 border-blue-400' : isLightMode ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/60 border-slate-800'}`}
+                className={`min-w-[5.5rem] flex-1 rounded-lg border p-2 transition-colors sm:min-w-0 sm:p-1.5 ${hoveredIndex === index ? 'bg-blue-50 border-blue-400' : isLightMode ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/60 border-slate-800'}`}
               >
                 <div className={`text-[11px] font-bold ${headingText}`}>
                   {new Date(`${day.date}T00:00:00`).toLocaleDateString(undefined, { weekday: 'short' })}
@@ -64,12 +64,13 @@ export const WeatherHazardChart: React.FC<WeatherHazardChartProps> = ({
           </div>
 
           <div className={`rounded-lg p-3 ${isLightMode ? 'bg-slate-50 border border-slate-200' : 'bg-slate-950/70 border border-slate-800'}`}>
-            <div className={`flex justify-end gap-4 text-[10px] mb-2 font-semibold ${labelText}`}>
+            <div className={`mb-2 flex flex-wrap justify-start gap-x-4 gap-y-1 text-[10px] font-semibold sm:justify-end ${labelText}`}>
               <span className="flex items-center gap-1.5"><i className="w-3 h-0.5 bg-orange-500" />Maximum (°C)</span>
               <span className="flex items-center gap-1.5"><i className="w-3 h-0.5 bg-cyan-600" />Minimum (°C)</span>
             </div>
-            <div className="h-28 w-full">
-              <svg viewBox="0 0 500 120" className="w-full h-full">
+            <div className="overflow-x-auto">
+              <div className="h-28 min-w-[30rem] sm:min-w-0">
+                <svg viewBox="0 0 500 120" className="h-full w-full">
                 {[0, 30, 60, 90].map(y => <line key={y} x1="30" y1={y} x2="470" y2={y} stroke={isLightMode ? '#e2e8f0' : '#334155'} strokeDasharray="4 4" />)}
                 {[40, 30, 20, 0].map((value, index) => <text key={value} x="22" y={10 + index * 30} fill={isLightMode ? '#64748b' : '#94a3b8'} fontSize="9" textAnchor="end">{value}</text>)}
                 {(['max_temp_c', 'min_temp_c'] as const).map((temperatureKey, seriesIndex) => {
@@ -81,7 +82,8 @@ export const WeatherHazardChart: React.FC<WeatherHazardChartProps> = ({
                     </g>
                   );
                 })}
-              </svg>
+                </svg>
+              </div>
             </div>
           </div>
         </>

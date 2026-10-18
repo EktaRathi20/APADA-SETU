@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  CloudRain, MapPin, Bell, ChevronDown, 
+  CloudRain, MapPin, Bell, ChevronDown, Menu,
   Settings, History, LogOut
 } from 'lucide-react';
 import { CityLocation, OfficerUser } from '@/types/domain';
@@ -15,6 +15,8 @@ interface HeaderProps {
   unreadAlertsCount: number;
   currentUser?: OfficerUser;
   onLogout?: () => void;
+  onOpenMobileNavigation: () => void;
+  isMobileNavigationOpen: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -27,6 +29,8 @@ export const Header: React.FC<HeaderProps> = ({
   unreadAlertsCount,
   currentUser,
   onLogout,
+  onOpenMobileNavigation,
+  isMobileNavigationOpen,
 }) => {
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -62,9 +66,19 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="bg-white border-b border-slate-200 text-slate-800 sticky top-0 z-40 shadow-2xs">
       {/* Primary Top Bar */}
-      <div className="px-4 lg:px-6 py-2.5 flex items-center justify-between gap-4">
+      <div className="px-3 sm:px-4 lg:px-6 py-2.5 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand Lockup (GOV / NDRF badge removed per user request) */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3 shrink-0">
+          <button
+            type="button"
+            aria-label="Open navigation menu"
+            aria-controls="mobile-navigation"
+            aria-expanded={isMobileNavigationOpen}
+            onClick={onOpenMobileNavigation}
+            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 md:hidden"
+          >
+            <Menu size={20} />
+          </button>
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-cyan-500 to-emerald-500 p-0.5 flex items-center justify-center shadow-xs">
               <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
@@ -73,9 +87,9 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-lg font-bold tracking-tight text-slate-900 font-sans">APADA-SETU</span>
+                <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 font-sans">APADA-SETU</span>
               </div>
-              <div className="text-[10px] text-slate-500 tracking-wider">
+              <div className="hidden sm:block text-[10px] text-slate-500 tracking-wider">
                 Anticipate <span className="text-slate-300">·</span> Prepare <span className="text-slate-300">·</span> Stay Safe
               </div>
             </div>
@@ -135,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right Controls: Notifications & Profile with Dropdown (Last Synced and Live Telemetry removed) */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Notifications Button */}
           <button
             onClick={onOpenNotifications}
@@ -237,6 +251,24 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </div>
+      <label className="flex items-center gap-2 px-3 pb-2 sm:hidden">
+        <MapPin size={14} aria-hidden="true" className="shrink-0 text-blue-600" />
+        <span className="sr-only">Select region</span>
+        <select
+          value={selectedCity.id}
+          onChange={(event) => {
+            const city = availableCities.find((item) => item.id === event.target.value);
+            if (city) onSelectCity(city);
+          }}
+          className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-800"
+        >
+          {availableCities.map((city) => (
+            <option key={city.id} value={city.id}>
+              {city.name}, {city.region}
+            </option>
+          ))}
+        </select>
+      </label>
     </header>
   );
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   LayoutDashboard, History, Bell, 
   AlertTriangle, CheckSquare, LifeBuoy, Banknote, FlaskConical,
-  ChevronRight
+  ChevronRight, X
 } from 'lucide-react';
 import { OperationalMode } from '@/types/domain';
 
@@ -15,6 +15,8 @@ interface SidebarProps {
   onSelectNotificationView?: (isNotification: boolean) => void;
   onOpenAlerts: () => void;
   alertsCount?: number;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -26,6 +28,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectNotificationView,
   onOpenAlerts,
   alertsCount = 0,
+  isMobileOpen = false,
+  onCloseMobile,
 }) => {
   const projectFlowItems = [
     {
@@ -75,8 +79,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="w-64 shrink-0 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex min-h-[calc(100vh-65px)] select-none">
-      <div className="p-4 space-y-6">
+    <>
+      {isMobileOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          onClick={onCloseMobile}
+          className="fixed inset-0 z-40 bg-slate-950/40 md:hidden"
+        />
+      )}
+      <aside id="mobile-navigation" className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col justify-between border-r border-slate-200 bg-white shadow-xl transition-transform duration-200 md:static md:z-auto md:min-h-[calc(100vh-65px)] md:w-64 md:shrink-0 md:translate-x-0 md:shadow-none select-none ${
+        isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
+        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 md:hidden">
+          <span className="text-sm font-bold text-slate-900">APADA-SETU</span>
+          <button
+            type="button"
+            aria-label="Close navigation menu"
+            onClick={onCloseMobile}
+            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <nav aria-label="Main navigation" className="flex-1 overflow-y-auto p-4 space-y-6">
         
         {/* Core Nav Group */}
         <div>
@@ -167,7 +193,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             })}
           </div>
         </div>
-      </div>
-    </aside>
+        </nav>
+      </aside>
+    </>
   );
 };

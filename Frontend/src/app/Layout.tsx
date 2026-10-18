@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BellRing, CloudRain, LoaderCircle, MapPin, X } from 'lucide-react';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { ClimateAlert } from '../services/climateAlerts';
@@ -29,9 +29,26 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
   const navigate = useNavigate();
   const dashboard = useOutletContext<DashboardOutletData>();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const currentMode = routeModes[location.pathname as keyof typeof routeModes] ?? 'threat';
   const isHistoricalView = location.pathname === '/history';
   const isNotificationView = location.pathname === '/alerts';
+
+  useEffect(() => {
+    if (!isMobileSidebarOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMobileSidebarOpen(false);
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isMobileSidebarOpen]);
 
   if (dashboard.regionLoading && !dashboard.selectedCity) {
     return (
@@ -51,6 +68,8 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white bg-slate-100 text-slate-800">
       <Header
+        onOpenMobileNavigation={() => setIsMobileSidebarOpen(true)}
+        isMobileNavigationOpen={isMobileSidebarOpen}
         selectedCity={dashboard.selectedCity}
         availableCities={dashboard.availableCities}
         onSelectCity={(city) => {
@@ -75,16 +94,20 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
         onLogout={onLogout}
       />
 
-      <div className="flex flex-1 flex-row">
+      <div className="flex min-w-0 flex-1 flex-row">
         <Sidebar
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
           currentMode={currentMode}
           onSelectMode={(mode) => {
+            setIsMobileSidebarOpen(false);
             if (mode === 'simulator') dashboard.runSimulation('YELLOW');
             else dashboard.resetSimulation();
             navigate(`/${mode}`);
           }}
           isHistoricalView={isHistoricalView}
           onSelectHistoricalView={(isHistory) => {
+            setIsMobileSidebarOpen(false);
             if (isHistory) {
               dashboard.resetSimulation();
               navigate('/history');
@@ -92,6 +115,7 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
           }}
           isNotificationView={isNotificationView}
           onSelectNotificationView={(isNotification) => {
+            setIsMobileSidebarOpen(false);
             if (isNotification) {
               dashboard.resetSimulation();
               navigate('/alerts');
@@ -99,6 +123,7 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
             }
           }}
           onOpenAlerts={() => {
+            setIsMobileSidebarOpen(false);
             dashboard.resetSimulation();
             navigate('/alerts');
             dashboard.markAllRead();
@@ -106,7 +131,7 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
           alertsCount={dashboard.unreadCount}
         />
 
-        <main className="flex-1 p-4 lg:p-6 overflow-x-hidden max-w-[1600px] w-full mx-auto">
+        <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6 overflow-x-hidden max-w-[1600px] w-full mx-auto">
           {dashboard.regionError && (
             <div role="status" className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
               {dashboard.regionError} Some dashboard sections may be incomplete.
@@ -125,21 +150,21 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
           )}
           {!isNotificationView && !isHistoricalView && (
             <section className="bg-white border border-slate-200/90 rounded-2xl p-4 mb-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="w-10 h-10 rounded-xl border bg-blue-50 border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
                   <MapPin size={22} />
                 </div>
-                <div>
-                  <h1 className="text-base sm:text-lg font-bold tracking-tight text-slate-900">
+                <div className="min-w-0">
+                  <h1 className="break-words text-base sm:text-lg font-bold tracking-tight text-slate-900">
                     {dashboard.selectedCity.name}, {dashboard.selectedCity.region}, {dashboard.selectedCity.country}
                   </h1>
-                  <div className="text-xs font-mono text-slate-500 mt-0.5">
+                  <div className="mt-0.5 break-words text-[10px] sm:text-xs font-mono text-slate-500">
                     {dashboard.selectedCity.coordinatesFormatted} <span className="text-slate-300">|</span> Population (est.): <span className="font-semibold text-slate-800">{dashboard.selectedCity.populationFormatted}</span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-xs shrink-0 self-start md:self-center">
-                <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border bg-slate-50 border-slate-200">
+              <div className="flex w-full min-w-0 flex-col gap-2 text-xs md:w-auto md:flex-row md:gap-3 shrink-0 self-start md:self-center">
+                <div className="flex min-w-0 items-center gap-2.5 px-3 py-1.5 rounded-xl border bg-slate-50 border-slate-200">
                   <CloudRain size={20} className="text-blue-600 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-500 font-medium">{currentMode === 'simulator' && dashboard.simulationTier ? 'Scenario Telemetry' : 'Current Conditions'}</div>
@@ -157,7 +182,7 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border bg-slate-50 border-slate-200">
+                <div className="flex min-w-0 items-center gap-2.5 px-3 py-1.5 rounded-xl border bg-slate-50 border-slate-200">
                   <CloudRain size={20} className="text-cyan-600 shrink-0" />
                   <div>
                     <div className="text-[10px] text-slate-500 font-medium">Next 7 Days (avg.)</div>
