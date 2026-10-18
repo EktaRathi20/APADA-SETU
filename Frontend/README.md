@@ -6,11 +6,10 @@ React dashboard for the APADA-SETU coastal climate-risk prototype. For cross-pro
 
 - React 19 and TypeScript 7
 - Vite 8 and Tailwind CSS 4
+- React Router for direct, bookmarkable dashboard routes
 - Leaflet / React Leaflet with OpenStreetMap tiles
 - `socket.io-client` for live climate-alert events
 - Lucide icons
-
-The manifest also declares packages that are not imported by the active dashboard (for example, Express, frontend dotenv, Google GenAI, and Motion). Check whether an external authoring/runtime environment needs them before removing them.
 
 ## Requirements
 
@@ -21,14 +20,14 @@ The manifest also declares packages that are not imported by the active dashboar
 ## Install and Run (PowerShell)
 
 ```powershell
-cd C:\node\DRAFT-I\Frontend
-npm install --legacy-peer-deps
+cd .\Frontend
+npm install
 npm run dev
 ```
 
 Open the URL Vite prints. The configured port is `3000`; if it is occupied, Vite selects another available port (for example `3001`). The Vite development proxy sends `/api` and `/socket.io` to `127.0.0.1:8000`.
 
-The `--legacy-peer-deps` option is currently needed for the manifest's Vite/esbuild peer-version combination. Keep `package-lock.json` committed so installs are reproducible.
+Keep `package-lock.json` committed so installs are reproducible.
 
 ## Common Commands
 
@@ -53,7 +52,19 @@ Do not put Google or alert-ingestion secrets in Vite variables. They are deliver
 
 ## Active Data Flow
 
-`src/api.ts` requests regions, population, facilities, current conditions, forecast, and historical cyclone data. `src/climateAlerts.ts` and `src/useClimateAlerts.ts` load the alert snapshot and subscribe to the Socket.IO `climate_alert` event. `src/App.tsx` combines these responses for the selected region.
+`src/services/api.ts` requests regions, population, facilities, current conditions, forecast, and historical cyclone data. `src/services/climateAlerts.ts` and `src/hooks/useClimateAlerts.ts` load the alert snapshot and subscribe to the Socket.IO `climate_alert` event. `src/app/DashboardProvider.tsx` loads and shares region data; the route pages consume it from React Router outlet context.
+
+## Routes
+
+The dashboard uses browser routes so each workspace can be opened directly or bookmarked:
+
+- `/login` — dedicated officer login page
+- `/overview` — integrated dashboard
+- `/baseline`, `/threat`, `/tasks`, `/landfall`, `/recovery`, `/simulator` — operational phases
+- `/history` — historical cyclone analogs
+- `/alerts` — climate alert inbox
+
+The root path redirects to `/threat`; unknown paths also return to the default threat view. Logging out redirects to `/login`. `src/app/AppRoutes.tsx` owns route declarations and login; `src/app/DashboardProvider.tsx` loads shared dashboard data and passes it through React Router outlet context; `src/app/Layout.tsx` owns the common header/sidebar shell; and `src/pages/` contains one component per route. Production hosting must serve the SPA entry point for these paths.
 
 The overview currently displays:
 
@@ -67,13 +78,40 @@ The overview currently displays:
 
 ## Main Source Areas
 
-- `src/App.tsx`: app shell, navigation, data requests, region state.
-- `src/api.ts`: REST response types and API client.
-- `src/climateAlerts.ts`, `src/useClimateAlerts.ts`: Socket.IO and alert snapshot state.
-- `src/components/MapComponent.tsx`: geographic basemap and facility markers.
-- `src/components/HistoricalDisastersView.tsx`: NOAA history view.
-- `src/components/ClimateAlertInbox.tsx`: alert list and details.
-- `src/components/modes/` and `src/data/mockData.ts`: legacy/demo feature components. The active app does not wire these as live workflows.
+```text
+src/
+├── app/                    # Router, shared data provider, and application layout
+├── components/
+│   ├── dashboard/          # Dashboard widgets, maps, modes, and modals
+│   └── layout/             # Shared header and sidebar
+├── data/                   # Local prototype/demo data
+├── features/simulator/     # Scenario simulation logic
+├── hooks/                  # Reusable React hooks
+├── pages/                  # Route-level page components, including login
+├── services/               # REST API and climate-alert socket service
+├── types/                  # Shared domain and dashboard types
+├── utils/                  # Data transformation and formatting helpers
+├── App.tsx                 # Application route entry
+├── index.css               # Global styles
+└── main.tsx                # React DOM bootstrap
+```
+
+- `src/app/AppRoutes.tsx`: route declarations and login/session flow.
+- `src/app/DashboardProvider.tsx`: shared dashboard state and API requests, passed to route pages through React Router outlet context.
+- `src/app/Layout.tsx`: shared page shell and modal host.
+- `src/pages/`: route-level page components, one file per route.
+- `src/services/api.ts`: application API endpoint functions.
+- `src/services/httpClient.ts`: shared Axios client with GET, POST, PUT, PATCH, and DELETE methods plus centralized interceptors.
+- `src/types/api.ts`: REST request/response contracts.
+- `src/services/climateAlerts.ts`, `src/hooks/useClimateAlerts.ts`: alert snapshot and Socket.IO event handling.
+- `src/features/simulator/simulator.ts`: simulated scenario data and intelligence generation.
+- `src/components/dashboard/`: dashboard widgets, maps, and route-specific modes.
+- `src/components/layout/`: shared Header and Sidebar components.
+- `src/data/mockData.ts`: prototype data used by dashboard views.
+- `src/types/`: shared domain models and route outlet data contracts.
+- `src/utils/transformers.ts`: API-to-view data transformations.
+
+The `@/` import alias points to `src/`, so imports between these layers can use stable paths without long relative traversals.
 
 ## Known Gaps
 
