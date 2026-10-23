@@ -82,6 +82,11 @@ export interface HistoricalResponse {
   source: string;
   source_url: string;
   total_historical_events_analyzed: number;
+  page: number;
+  page_size: number;
+  total_events: number;
+  matching_events: number;
+  total_pages: number;
   historical_analogs: HistoricalEventResponse[];
 }
 

@@ -87,7 +87,7 @@ All region-specific endpoints accept one of the keys returned by `GET /api/regio
 | GET | `/api/shelter?region=vizag` | Nearby hospitals, shelters, and Places diagnostics |
 | GET | `/api/current-conditions?region=vizag` | Current weather observation |
 | GET | `/api/forecast?region=vizag` | Seven-day forecast; `/api/forcast` remains a legacy alias |
-| GET | `/api/history?region=vizag` | NOAA track history, source URL, and region-filtered events |
+| GET | `/api/history?region=vizag&page=1&page_size=12&search=montha&sort_by=newest` | Searchable, sortable NOAA track history page; page size is capped at 100 |
 | GET | `/api/alerts?limit=100` | Newest in-memory alert records |
 | POST | `/api/alerts` | Validate, retain, and broadcast a climate alert |
 | GET | `/api/whatsapp/configuration` | Report whether OTP and delivery configuration is present |

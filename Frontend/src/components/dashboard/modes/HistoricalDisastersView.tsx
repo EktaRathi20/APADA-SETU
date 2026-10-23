@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ArrowLeft, History, Search, Wind, Waves } from 'lucide-react';
 import type { HistoricalResponse } from '@/types/api';
 
@@ -9,6 +9,12 @@ interface HistoricalDisastersViewProps {
   onRetry: () => void;
   regionName: string;
   onBackToOverview?: () => void;
+  page: number;
+  onPageChange: (page: number) => void;
+  searchQuery: string;
+  onSearchChange: (search: string) => void;
+  sortBy: 'newest' | 'oldest' | 'wind' | 'distance';
+  onSortChange: (sort: 'newest' | 'oldest' | 'wind' | 'distance') => void;
 }
 
 export const HistoricalDisastersView: React.FC<HistoricalDisastersViewProps> = ({
@@ -18,18 +24,21 @@ export const HistoricalDisastersView: React.FC<HistoricalDisastersViewProps> = (
   onRetry,
   regionName,
   onBackToOverview,
+  page,
+  onPageChange,
+  searchQuery,
+  onSearchChange,
+  sortBy,
+  onSortChange,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'wind' | 'distance'>('newest');
-  const events = [...(history?.historical_analogs ?? [])]
-    .filter(event => `${event.matched_cyclone} ${event.reference_period.start_date}`.toLowerCase().includes(searchQuery.toLowerCase()))
-    .sort((left, right) => {
-      if (sortBy === 'wind') return (right.historical_peak_wind_kmh ?? -1) - (left.historical_peak_wind_kmh ?? -1);
-      if (sortBy === 'distance') return left.closest_approach_km - right.closest_approach_km;
-      const leftDate = left.reference_period.start_date;
-      const rightDate = right.reference_period.start_date;
-      return sortBy === 'newest' ? rightDate.localeCompare(leftDate) : leftDate.localeCompare(rightDate);
-    });
+  const events = history?.historical_analogs ?? [];
+  const totalPages = history?.total_pages ?? 0;
+  const firstResult = history && history.matching_events > 0
+    ? (history.page - 1) * history.page_size + 1
+    : 0;
+  const lastResult = history
+    ? Math.min(history.page * history.page_size, history.matching_events)
+    : 0;
 
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
@@ -54,9 +63,9 @@ export const HistoricalDisastersView: React.FC<HistoricalDisastersViewProps> = (
       <section className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
         <label className="flex items-center gap-2 border border-slate-300 bg-slate-50 rounded-lg px-3 py-2 text-slate-500 w-full sm:max-w-sm">
           <Search size={15} />
-          <input value={searchQuery} onChange={event => setSearchQuery(event.target.value)} placeholder="Search cyclone or year" className="bg-transparent outline-none text-xs text-slate-900 w-full" />
+          <input value={searchQuery} onChange={event => onSearchChange(event.target.value)} placeholder="Search cyclone or year" className="bg-transparent outline-none text-xs text-slate-900 w-full" />
         </label>
-        <select value={sortBy} onChange={event => setSortBy(event.target.value as typeof sortBy)} className="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800">
+        <select value={sortBy} onChange={event => onSortChange(event.target.value as typeof sortBy)} className="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800">
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
           <option value="wind">Peak wind</option>
@@ -74,11 +83,18 @@ export const HistoricalDisastersView: React.FC<HistoricalDisastersViewProps> = (
           </button>
         </div>
       ) : events.length === 0 ? (
-        <p className="py-12 text-center text-sm text-slate-500">No historical analogs were returned for this region.</p>
+        <p className="py-12 text-center text-sm text-slate-500">
+          {history?.matching_events === 0 && searchQuery.trim()
+            ? 'No historical analogs match your search.'
+            : 'No historical analogs were returned for this region.'}
+        </p>
       ) : (
         <>
           <p className="text-xs text-slate-500">
-            {history?.total_historical_events_analyzed ?? events.length} cyclone tracks · {history?.source} · refreshed {history?.timestamp ? new Date(history.timestamp).toLocaleString() : 'unknown'} · <a className="text-blue-700 underline" href={history?.source_url} target="_blank" rel="noreferrer">source</a>
+            Showing {firstResult}–{lastResult} of {history?.matching_events} matching cyclone tracks
+            {' '}({history?.total_historical_events_analyzed} analyzed) · {history?.source}
+            {' '}· refreshed {history?.timestamp ? new Date(history.timestamp).toLocaleString() : 'unknown'}
+            {' '}· <a className="text-blue-700 underline" href={history?.source_url} target="_blank" rel="noreferrer">source</a>
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {events.map((event, index) => (
@@ -101,6 +117,27 @@ export const HistoricalDisastersView: React.FC<HistoricalDisastersViewProps> = (
               </article>
             ))}
           </div>
+          <nav className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3" aria-label="Historical results pagination">
+            <button
+              type="button"
+              onClick={() => onPageChange(page - 1)}
+              disabled={page <= 1 || isLoading}
+              className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 enabled:hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span className="text-xs text-slate-600" aria-live="polite">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => onPageChange(page + 1)}
+              disabled={page >= totalPages || isLoading}
+              className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 enabled:hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Next
+            </button>
+          </nav>
         </>
       )}
     </div>
