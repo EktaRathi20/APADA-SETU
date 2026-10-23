@@ -16,11 +16,14 @@ import {
 import {
   getUsers,
   getRoles,
-  login,
+  login
+} from "../services/authApi";
+import {   
   type OfficerUser,
   type Role,
-  type AuthUser,
-} from "../services/authApi";
+  type AuthUser
+} from "@/types";
+
 
 interface LoginPageProps {
   onLogin: (user: AuthUser) => void;
