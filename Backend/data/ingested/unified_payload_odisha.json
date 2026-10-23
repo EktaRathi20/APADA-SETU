@@ -1,0 +1,889 @@
+{
+  "region_metadata": {
+    "min_lon": 85.75,
+    "min_lat": 19.75,
+    "max_lon": 85.95,
+    "max_lat": 19.85,
+    "name": "Puri, Odisha"
+  },
+  "satellite_frame_path": "data\\ingested\\scan_odisha.png",
+  "meteorological_telemetry": {
+    "timestamp": "2026-10-23T07:47:50.107999+00:00",
+    "region_target": "odisha",
+    "temperature_c": 32.2,
+    "condition": "Partly sunny",
+    "wind_speed_kmh": 10,
+    "wind_direction": "NORTHEAST",
+    "pressure_hpa": 1009.4,
+    "relative_humidity_percent": 55,
+    "system_name": "Google Weather API",
+    "source": "Google Weather API",
+    "source_fallback": false
+  },
+  "forcast": {
+    "region_target": "odisha",
+    "latitude": 19.8135,
+    "longitude": 85.8312,
+    "forecast": [
+      {
+        "date": "2026-10-23",
+        "max_temp_c": 32.3,
+        "min_temp_c": 22.4,
+        "condition": "Partly sunny"
+      },
+      {
+        "date": "2026-10-24",
+        "max_temp_c": 32.1,
+        "min_temp_c": 22.3,
+        "condition": "Partly sunny"
+      },
+      {
+        "date": "2026-10-25",
+        "max_temp_c": 31.3,
+        "min_temp_c": 21.5,
+        "condition": "Cloudy"
+      },
+      {
+        "date": "2026-10-26",
+        "max_temp_c": 30.5,
+        "min_temp_c": 24,
+        "condition": "Rain"
+      },
+      {
+        "date": "2026-10-27",
+        "max_temp_c": 27.8,
+        "min_temp_c": 25,
+        "condition": "Rain"
+      }
+    ],
+    "source": "Google Weather API",
+    "source_fallback": false
+  },
+  "demography": {
+    "timestamp": "2026-10-23T07:47:45.253799Z",
+    "region_target": "odisha",
+    "total_population": 336411
+  },
+  "places": {
+    "hospitals": [
+      {
+        "name": "Medical chhack puri",
+        "address": "Balagandi, Puri, Odisha 752001, India",
+        "lat": 19.8120629,
+        "lon": 85.82834249999999
+      },
+      {
+        "name": "District Headquarter Hospital, Puri",
+        "address": "Medical square, infront of eye department, near blood bank, Puri, Odisha 752001, India",
+        "lat": 19.8136491,
+        "lon": 85.83111559999999
+      },
+      {
+        "name": "E-24 Hospital",
+        "address": "Bhanumati Rd, Tulasi Bhawan, Mochi, Hadi Sahi Rd, Dolamandap Sahi, Puri, Odisha 752001, India",
+        "lat": 19.801667,
+        "lon": 85.8240634
+      },
+      {
+        "name": "Medicine Stores",
+        "address": "RR7J+439, Balagandi, Puri, Odisha 752001, India",
+        "lat": 19.8127921,
+        "lon": 85.83022509999999
+      },
+      {
+        "name": "JAN AUSHADHI KENDRA (PMBJK09820)",
+        "address": "RR7H+355, Puri, Odisha 752001, India",
+        "lat": 19.8126476,
+        "lon": 85.827968
+      }
+    ],
+    "shelters": [
+      {
+        "name": "Shelter for urban homeless",
+        "address": "Talabania, RR8V+FHF Near, Mangala Mandir Ln, Gundicha Vihar, Sarbodaya Nagar, Puri, Odisha 752002, India",
+        "lat": 19.815878400000003,
+        "lon": 85.8438293
+      }
+    ],
+    "source_errors": {}
+  },
+  "history": {
+    "timestamp": "2026-10-23T07:48:06.706778+00:00",
+    "region_target": "odisha",
+    "source": "NOAA IBTrACS North Indian Ocean v04r01",
+    "source_url": "https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r01/access/csv/ibtracs.NI.list.v04r01.csv",
+    "total_historical_events_analyzed": 70,
+    "historical_analogs": [
+      {
+        "matched_cyclone": "UNNAMED (2025)",
+        "historical_peak_wind_kmh": 65,
+        "historical_surge_meters": null,
+        "closest_approach_km": 117.4,
+        "reference_period": {
+          "start_date": "2025-10-02",
+          "end_date": "2025-10-03"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2025)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 57.2,
+        "reference_period": {
+          "start_date": "2025-09-26",
+          "end_date": "2025-09-27"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2025)",
+        "historical_peak_wind_kmh": 37,
+        "historical_surge_meters": null,
+        "closest_approach_km": 117.9,
+        "reference_period": {
+          "start_date": "2025-08-18",
+          "end_date": "2025-08-19"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "DANA (2024)",
+        "historical_peak_wind_kmh": 111,
+        "historical_surge_meters": null,
+        "closest_approach_km": 152.9,
+        "reference_period": {
+          "start_date": "2024-10-24",
+          "end_date": "2024-10-26"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2024)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 27.2,
+        "reference_period": {
+          "start_date": "2024-09-08",
+          "end_date": "2024-09-09"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2024)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 42.0,
+        "reference_period": {
+          "start_date": "2024-07-19",
+          "end_date": "2024-07-20"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "MIDHILI (2023)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 229.6,
+        "reference_period": {
+          "start_date": "2023-11-16",
+          "end_date": "2023-11-16"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "HAMOON (2023)",
+        "historical_peak_wind_kmh": 74,
+        "historical_surge_meters": null,
+        "closest_approach_km": 227.8,
+        "reference_period": {
+          "start_date": "2023-10-23",
+          "end_date": "2023-10-23"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2022)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 123.5,
+        "reference_period": {
+          "start_date": "2022-09-11",
+          "end_date": "2022-09-11"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2022)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 112.3,
+        "reference_period": {
+          "start_date": "2022-08-09",
+          "end_date": "2022-08-09"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "JAWAD (2021)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 97.4,
+        "reference_period": {
+          "start_date": "2021-12-05",
+          "end_date": "2021-12-05"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "GULAB:SHAHEEN-GU (2021)",
+        "historical_peak_wind_kmh": 83,
+        "historical_surge_meters": null,
+        "closest_approach_km": 147.1,
+        "reference_period": {
+          "start_date": "2021-09-26",
+          "end_date": "2021-09-26"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2021)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 139.5,
+        "reference_period": {
+          "start_date": "2021-09-12",
+          "end_date": "2021-09-13"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "YAAS (2021)",
+        "historical_peak_wind_kmh": 139,
+        "historical_surge_meters": null,
+        "closest_approach_km": 202.0,
+        "reference_period": {
+          "start_date": "2021-05-25",
+          "end_date": "2021-05-26"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2020)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 140.6,
+        "reference_period": {
+          "start_date": "2020-10-22",
+          "end_date": "2020-10-22"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "AMPHAN (2020)",
+        "historical_peak_wind_kmh": 185,
+        "historical_surge_meters": null,
+        "closest_approach_km": 187.7,
+        "reference_period": {
+          "start_date": "2020-05-19",
+          "end_date": "2020-05-20"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "BULBUL:MATMO (2019)",
+        "historical_peak_wind_kmh": 139,
+        "historical_surge_meters": null,
+        "closest_approach_km": 186.1,
+        "reference_period": {
+          "start_date": "2019-11-08",
+          "end_date": "2019-11-09"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2019)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 210.0,
+        "reference_period": {
+          "start_date": "2019-08-06",
+          "end_date": "2019-08-07"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "FANI (2019)",
+        "historical_peak_wind_kmh": 213,
+        "historical_surge_meters": null,
+        "closest_approach_km": 27.4,
+        "reference_period": {
+          "start_date": "2019-05-02",
+          "end_date": "2019-05-03"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "TITLI (2018)",
+        "historical_peak_wind_kmh": 148,
+        "historical_surge_meters": null,
+        "closest_approach_km": 125.7,
+        "reference_period": {
+          "start_date": "2018-10-10",
+          "end_date": "2018-10-12"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "DAYE (2018)",
+        "historical_peak_wind_kmh": 65,
+        "historical_surge_meters": null,
+        "closest_approach_km": 103.3,
+        "reference_period": {
+          "start_date": "2018-09-20",
+          "end_date": "2018-09-21"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2018)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 231.6,
+        "reference_period": {
+          "start_date": "2018-09-06",
+          "end_date": "2018-09-06"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2018)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 27.2,
+        "reference_period": {
+          "start_date": "2018-08-15",
+          "end_date": "2018-08-15"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2018)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 199.4,
+        "reference_period": {
+          "start_date": "2018-08-07",
+          "end_date": "2018-08-07"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2017)",
+        "historical_peak_wind_kmh": 70,
+        "historical_surge_meters": null,
+        "closest_approach_km": 142.3,
+        "reference_period": {
+          "start_date": "2017-12-08",
+          "end_date": "2017-12-10"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2017)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 60.2,
+        "reference_period": {
+          "start_date": "2017-11-16",
+          "end_date": "2017-11-17"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2017)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 72.9,
+        "reference_period": {
+          "start_date": "2017-10-19",
+          "end_date": "2017-10-19"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2017)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 49.2,
+        "reference_period": {
+          "start_date": "2017-07-18",
+          "end_date": "2017-07-19"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2016)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 190.8,
+        "reference_period": {
+          "start_date": "2016-11-05",
+          "end_date": "2016-11-05"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "ROANU (2016)",
+        "historical_peak_wind_kmh": 83,
+        "historical_surge_meters": null,
+        "closest_approach_km": 102.0,
+        "reference_period": {
+          "start_date": "2016-05-20",
+          "end_date": "2016-05-20"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2015)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 245.2,
+        "reference_period": {
+          "start_date": "2015-09-16",
+          "end_date": "2015-09-16"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2015)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 80.5,
+        "reference_period": {
+          "start_date": "2015-06-20",
+          "end_date": "2015-06-21"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "PHAILIN (2013)",
+        "historical_peak_wind_kmh": 213,
+        "historical_surge_meters": null,
+        "closest_approach_km": 103.6,
+        "reference_period": {
+          "start_date": "2013-10-12",
+          "end_date": "2013-10-13"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2013)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 212.6,
+        "reference_period": {
+          "start_date": "2013-07-30",
+          "end_date": "2013-07-30"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2011)",
+        "historical_peak_wind_kmh": null,
+        "historical_surge_meters": null,
+        "closest_approach_km": 247.8,
+        "reference_period": {
+          "start_date": "2011-09-22",
+          "end_date": "2011-09-22"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2010)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 33.9,
+        "reference_period": {
+          "start_date": "2010-10-15",
+          "end_date": "2010-10-16"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2010)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 46.5,
+        "reference_period": {
+          "start_date": "2010-10-07",
+          "end_date": "2010-10-08"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2009)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 206.1,
+        "reference_period": {
+          "start_date": "2009-09-04",
+          "end_date": "2009-09-04"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2009)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 221.6,
+        "reference_period": {
+          "start_date": "2009-07-20",
+          "end_date": "2009-07-20"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "AILA (2009)",
+        "historical_peak_wind_kmh": 74,
+        "historical_surge_meters": null,
+        "closest_approach_km": 227.3,
+        "reference_period": {
+          "start_date": "2009-05-24",
+          "end_date": "2009-05-25"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "BIJLI (2009)",
+        "historical_peak_wind_kmh": 74,
+        "historical_surge_meters": null,
+        "closest_approach_km": 144.7,
+        "reference_period": {
+          "start_date": "2009-04-16",
+          "end_date": "2009-04-17"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2008)",
+        "historical_peak_wind_kmh": 83,
+        "historical_surge_meters": null,
+        "closest_approach_km": 145.8,
+        "reference_period": {
+          "start_date": "2008-09-15",
+          "end_date": "2008-09-17"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2008)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 27.2,
+        "reference_period": {
+          "start_date": "2008-08-09",
+          "end_date": "2008-08-10"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2007)",
+        "historical_peak_wind_kmh": 83,
+        "historical_surge_meters": null,
+        "closest_approach_km": 27.3,
+        "reference_period": {
+          "start_date": "2007-06-28",
+          "end_date": "2007-06-29"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2006)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 96.9,
+        "reference_period": {
+          "start_date": "2006-09-28",
+          "end_date": "2006-09-29"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2006)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 149.2,
+        "reference_period": {
+          "start_date": "2006-09-03",
+          "end_date": "2006-09-04"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2006)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 103.4,
+        "reference_period": {
+          "start_date": "2006-08-29",
+          "end_date": "2006-08-29"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2006)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 78.3,
+        "reference_period": {
+          "start_date": "2006-08-16",
+          "end_date": "2006-08-17"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2006)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 218.3,
+        "reference_period": {
+          "start_date": "2006-08-12",
+          "end_date": "2006-08-12"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2006)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 27.2,
+        "reference_period": {
+          "start_date": "2006-08-02",
+          "end_date": "2006-08-03"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2006)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 65.3,
+        "reference_period": {
+          "start_date": "2006-07-02",
+          "end_date": "2006-07-03"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2005)",
+        "historical_peak_wind_kmh": 74,
+        "historical_surge_meters": null,
+        "closest_approach_km": 67.3,
+        "reference_period": {
+          "start_date": "2005-10-01",
+          "end_date": "2005-10-02"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2005)",
+        "historical_peak_wind_kmh": 65,
+        "historical_surge_meters": null,
+        "closest_approach_km": 78.2,
+        "reference_period": {
+          "start_date": "2005-09-18",
+          "end_date": "2005-09-19"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2005)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 98.6,
+        "reference_period": {
+          "start_date": "2005-09-12",
+          "end_date": "2005-09-13"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2005)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 176.4,
+        "reference_period": {
+          "start_date": "2005-07-30",
+          "end_date": "2005-07-31"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2004)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 40.4,
+        "reference_period": {
+          "start_date": "2004-06-12",
+          "end_date": "2004-06-14"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2003)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 233.1,
+        "reference_period": {
+          "start_date": "2003-10-08",
+          "end_date": "2003-10-08"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2003)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 124.0,
+        "reference_period": {
+          "start_date": "2003-08-27",
+          "end_date": "2003-08-28"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2003)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 242.2,
+        "reference_period": {
+          "start_date": "2003-07-26",
+          "end_date": "2003-07-26"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2002)",
+        "historical_peak_wind_kmh": 102,
+        "historical_surge_meters": null,
+        "closest_approach_km": 114.4,
+        "reference_period": {
+          "start_date": "2002-11-12",
+          "end_date": "2002-11-12"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (2001)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 65.2,
+        "reference_period": {
+          "start_date": "2001-06-12",
+          "end_date": "2001-06-13"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (1999)",
+        "historical_peak_wind_kmh": 259,
+        "historical_surge_meters": null,
+        "closest_approach_km": 24.8,
+        "reference_period": {
+          "start_date": "1999-10-28",
+          "end_date": "1999-11-01"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (1999)",
+        "historical_peak_wind_kmh": 167,
+        "historical_surge_meters": null,
+        "closest_approach_km": 107.9,
+        "reference_period": {
+          "start_date": "1999-10-16",
+          "end_date": "1999-10-18"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (1999)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 125.6,
+        "reference_period": {
+          "start_date": "1999-06-17",
+          "end_date": "1999-06-18"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (1998)",
+        "historical_peak_wind_kmh": 130,
+        "historical_surge_meters": null,
+        "closest_approach_km": 178.0,
+        "reference_period": {
+          "start_date": "1998-11-21",
+          "end_date": "1998-11-22"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (1997)",
+        "historical_peak_wind_kmh": 93,
+        "historical_surge_meters": null,
+        "closest_approach_km": 114.5,
+        "reference_period": {
+          "start_date": "1997-09-25",
+          "end_date": "1997-09-26"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (1997)",
+        "historical_peak_wind_kmh": 46,
+        "historical_surge_meters": null,
+        "closest_approach_km": 39.1,
+        "reference_period": {
+          "start_date": "1997-08-28",
+          "end_date": "1997-08-28"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (1997)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 103.4,
+        "reference_period": {
+          "start_date": "1997-08-20",
+          "end_date": "1997-08-21"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (1997)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 178.8,
+        "reference_period": {
+          "start_date": "1997-07-29",
+          "end_date": "1997-07-31"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      },
+      {
+        "matched_cyclone": "UNNAMED (1996)",
+        "historical_peak_wind_kmh": 56,
+        "historical_surge_meters": null,
+        "closest_approach_km": 190.9,
+        "reference_period": {
+          "start_date": "1996-10-28",
+          "end_date": "1996-10-28"
+        },
+        "source": "NOAA IBTrACS v04r01"
+      }
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "region_target": "chennai",
+  "radius_meters": 5000,
+  "timestamp": "2026-10-23T08:08:24.562393+00:00",
+  "facilities": {
+    "hospitals": [
+      {
+        "name": "Apollo Hospitals Greams Lane | Hospital in Chennai",
+        "address": "Greams Lane, 21, Greams Rd, Thousand Lights West, Thousand Lights, Chennai, Tamil Nadu 600006, India",
+        "lat": 13.063182399999999,
+        "lon": 80.2515375
+      },
+      {
+        "name": "Sankara Nethralaya",
+        "address": "Old, No 18, 41, College Rd, Thousand Lights West, Nungambakkam, Chennai, Tamil Nadu 600006, India",
+        "lat": 13.066970699999999,
+        "lon": 80.2504271
+      },
+      {
+        "name": "Stanley Government Hospital",
+        "address": "SUPER SPECIALITY BLOCK, MC Rd, Old Washermanpet, Chennai, Tamil Nadu 600001, India",
+        "lat": 13.1060518,
+        "lon": 80.2859402
+      },
+      {
+        "name": "Billroth Hospitals",
+        "address": "43, Lakshmi Talkies Rd, Shenoy Nagar, Chennai, Tamil Nadu 600030, India",
+        "lat": 13.0757774,
+        "lon": 80.22729009999999
+      },
+      {
+        "name": "Kmc hospital",
+        "address": "2, Poonamallee High Rd, New Bupathy Nagar, Kilpauk, Chennai, Tamil Nadu 600010, India",
+        "lat": 13.0759267,
+        "lon": 80.2417612
+      }
+    ],
+    "shelters": [
+      {
+        "name": "Public Night Shelter",
+        "address": "Special shelter (M, Stanley Hospital, Old Jail Rd, Old Washermanpet, Chennai, Tamil Nadu 600001, India",
+        "lat": 13.1060273,
+        "lon": 80.2847161
+      },
+      {
+        "name": "Public Night Shelter",
+        "address": "Public Night Shelter (Men),Your Hope is Remaining,Institue of obstetrics and gynecology Government Hospital, 2, Pantheon Rd, Navalar Nagar, Chepauk, Egmore, Chennai, Tamil Nadu 600005, India",
+        "lat": 13.065758299999999,
+        "lon": 80.2812442
+      }
+    ],
+    "source_errors": {}
+  }
+}

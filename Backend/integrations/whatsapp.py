@@ -33,7 +33,7 @@ def _database_path():
     configured_path = os.getenv("WHATSAPP_DATABASE_PATH")
     if configured_path:
         return Path(configured_path).expanduser()
-    return Path(__file__).resolve().parent / ".local" / "whatsapp.sqlite3"
+    return Path(__file__).resolve().parent.parent / ".local" / "whatsapp.sqlite3"
 
 
 def _connect():

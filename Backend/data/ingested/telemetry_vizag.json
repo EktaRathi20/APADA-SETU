@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-10-17T16:16:28.004597+00:00",
+  "timestamp": "2026-10-23T08:08:03.491364+00:00",
   "region_target": "vizag",
-  "temperature_c": 27.2,
+  "temperature_c": 30.5,
   "condition": "Cloudy",
   "wind_speed_kmh": 13,
-  "wind_direction": "NORTHEAST",
-  "pressure_hpa": 1013.25,
-  "relative_humidity_percent": 86,
+  "wind_direction": "EAST",
+  "pressure_hpa": 1009.17,
+  "relative_humidity_percent": 69,
   "system_name": "Google Weather API",
   "source": "Google Weather API",
   "source_fallback": false

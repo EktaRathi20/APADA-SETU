@@ -1,0 +1,48 @@
+{
+  "region_target": "odisha",
+  "radius_meters": 5000,
+  "timestamp": "2026-10-23T07:47:51.652553+00:00",
+  "facilities": {
+    "hospitals": [
+      {
+        "name": "Medical chhack puri",
+        "address": "Balagandi, Puri, Odisha 752001, India",
+        "lat": 19.8120629,
+        "lon": 85.82834249999999
+      },
+      {
+        "name": "District Headquarter Hospital, Puri",
+        "address": "Medical square, infront of eye department, near blood bank, Puri, Odisha 752001, India",
+        "lat": 19.8136491,
+        "lon": 85.83111559999999
+      },
+      {
+        "name": "E-24 Hospital",
+        "address": "Bhanumati Rd, Tulasi Bhawan, Mochi, Hadi Sahi Rd, Dolamandap Sahi, Puri, Odisha 752001, India",
+        "lat": 19.801667,
+        "lon": 85.8240634
+      },
+      {
+        "name": "Medicine Stores",
+        "address": "RR7J+439, Balagandi, Puri, Odisha 752001, India",
+        "lat": 19.8127921,
+        "lon": 85.83022509999999
+      },
+      {
+        "name": "JAN AUSHADHI KENDRA (PMBJK09820)",
+        "address": "RR7H+355, Puri, Odisha 752001, India",
+        "lat": 19.8126476,
+        "lon": 85.827968
+      }
+    ],
+    "shelters": [
+      {
+        "name": "Shelter for urban homeless",
+        "address": "Talabania, RR8V+FHF Near, Mangala Mandir Ln, Gundicha Vihar, Sarbodaya Nagar, Puri, Odisha 752002, India",
+        "lat": 19.815878400000003,
+        "lon": 85.8438293
+      }
+    ],
+    "source_errors": {}
+  }
+}

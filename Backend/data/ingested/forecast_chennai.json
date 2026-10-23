@@ -1,0 +1,43 @@
+{
+  "region_target": "chennai",
+  "timestamp": "2026-10-23T08:08:22.900231+00:00",
+  "data": {
+    "region_target": "chennai",
+    "latitude": 13.0827,
+    "longitude": 80.2707,
+    "forecast": [
+      {
+        "date": "2026-10-23",
+        "max_temp_c": 28.7,
+        "min_temp_c": 25.2,
+        "condition": "Light rain"
+      },
+      {
+        "date": "2026-10-24",
+        "max_temp_c": 29.4,
+        "min_temp_c": 25.2,
+        "condition": "Rain"
+      },
+      {
+        "date": "2026-10-25",
+        "max_temp_c": 27.7,
+        "min_temp_c": 25.2,
+        "condition": "Thunderstorm"
+      },
+      {
+        "date": "2026-10-26",
+        "max_temp_c": 30.2,
+        "min_temp_c": 24.7,
+        "condition": "Cloudy"
+      },
+      {
+        "date": "2026-10-27",
+        "max_temp_c": 30.9,
+        "min_temp_c": 24.6,
+        "condition": "Cloudy"
+      }
+    ],
+    "source": "Google Weather API",
+    "source_fallback": false
+  }
+}
