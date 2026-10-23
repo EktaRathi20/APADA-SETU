@@ -24,8 +24,16 @@ export const api = {
     httpClient.get<InfrastructureResponse>(`/shelter?region=${encodeURIComponent(region)}`, { signal }),
   getCurrentConditions: (region: string, signal?: AbortSignal) =>
     httpClient.get<CurrentConditionsResponse>(`/current-conditions?region=${encodeURIComponent(region)}`, { signal }),
-  getHistory: (region: string, signal?: AbortSignal) =>
-    httpClient.get<HistoricalResponse>(`/history?region=${encodeURIComponent(region)}`, { signal }),
+  getHistory: (
+    region: string,
+    params: { page: number; pageSize: number; search: string; sortBy: 'newest' | 'oldest' | 'wind' | 'distance' },
+    signal?: AbortSignal,
+  ) =>
+    httpClient.get<HistoricalResponse>(
+      `/history?region=${encodeURIComponent(region)}&page=${params.page}&page_size=${params.pageSize}`
+      + `&search=${encodeURIComponent(params.search)}&sort_by=${params.sortBy}`,
+      { signal },
+    ),
   getWhatsAppConfiguration: (signal?: AbortSignal) =>
     httpClient.get<WhatsAppConfigurationResponse>('/whatsapp/configuration', { signal }),
   getClimateAlerts: (signal?: AbortSignal) =>

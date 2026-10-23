@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import APIRouter, HTTPException, Query
 
 from ingestion_layer.constant import REGION_DATA
@@ -59,9 +61,53 @@ def get_forecast(region: str = Query("vizag", description="Region key (vizag, od
 
 
 @router.get("/api/history")
-def get_history(region: str = Query("vizag", description="Region key (vizag, odisha, chennai, etc.)")):
+def get_history(
+    region: str = Query("vizag", description="Region key (vizag, odisha, chennai, etc.)"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(12, ge=1, le=100),
+    search: str = Query("", max_length=120),
+    sort_by: Literal["newest", "oldest", "wind", "distance"] = "newest",
+):
     try:
-        return fetch_historical_disasters(region_key=region)
+        result = fetch_historical_disasters(region_key=region)
+        events = list(result["historical_analogs"])
+        total_events = len(events)
+        normalized_search = search.strip().casefold()
+        if normalized_search:
+            events = [
+                event
+                for event in events
+                if normalized_search
+                in f"{event['matched_cyclone']} {event['reference_period']['start_date']}".casefold()
+            ]
+
+        if sort_by == "wind":
+            events.sort(
+                key=lambda event: (
+                    event["historical_peak_wind_kmh"] is not None,
+                    event["historical_peak_wind_kmh"]
+                    if event["historical_peak_wind_kmh"] is not None
+                    else -1,
+                ),
+                reverse=True,
+            )
+        elif sort_by == "distance":
+            events.sort(key=lambda event: event["closest_approach_km"])
+        else:
+            events.sort(
+                key=lambda event: event["reference_period"]["start_date"],
+                reverse=sort_by == "newest",
+            )
+
+        matching_events = len(events)
+        start = (page - 1) * page_size
+        result["historical_analogs"] = events[start : start + page_size]
+        result["page"] = page
+        result["page_size"] = page_size
+        result["total_events"] = total_events
+        result["matching_events"] = matching_events
+        result["total_pages"] = (matching_events + page_size - 1) // page_size
+        return result
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error))
     except RuntimeError as error:

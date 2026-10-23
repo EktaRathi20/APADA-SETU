@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
-import type { ApiRegion, DisasterIntelligenceResponse, HistoricalResponse, RegionResponses } from '../types/api';
+import type { ApiRegion, DisasterIntelligenceResponse, RegionResponses } from '../types/api';
 import { ClimateAlert } from '../services/climateAlerts';
 import { useClimateAlerts } from '../hooks/useClimateAlerts';
 import { createSimulatedIntelligence, SimulationTier } from '../features/simulator/simulator';
@@ -57,10 +57,6 @@ export default function DashboardProvider() {
   const [regionDataError, setRegionDataError] = useState<string | null>(null);
   const [regionsRetry, setRegionsRetry] = useState(0);
   const [regionDataRetry, setRegionDataRetry] = useState(0);
-  const [historicalData, setHistoricalData] = useState<HistoricalResponse | null>(null);
-  const [historicalLoading, setHistoricalLoading] = useState(false);
-  const [historicalError, setHistoricalError] = useState<string | null>(null);
-  const [historicalRetry, setHistoricalRetry] = useState(0);
   const [toastAlert, setToastAlert] = useState<ClimateAlert | null>(null);
   const [showMangroveLayer, setShowMangroveLayer] = useState(true);
   const [showHistoricalLayer, setShowHistoricalLayer] = useState(false);
@@ -161,26 +157,8 @@ export default function DashboardProvider() {
     return () => controller.abort();
   }, [selectedRegion, selectedRegionKey, regionDataRetry]);
 
-  useEffect(() => {
-    if (location.pathname !== '/history') return;
-    const controller = new AbortController();
-    setHistoricalLoading(true);
-    setHistoricalError(null);
-    setHistoricalData(null);
-    api.getHistory(selectedRegionKey, controller.signal)
-      .then(setHistoricalData)
-      .catch((error: unknown) => {
-        if (!isAbortError(error)) setHistoricalError(errorMessage(error));
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setHistoricalLoading(false);
-      });
-    return () => controller.abort();
-  }, [location.pathname, selectedRegionKey, historicalRetry]);
-
   const retryRegions = () => setRegionsRetry(value => value + 1);
   const retryRegionData = () => setRegionDataRetry(value => value + 1);
-  const retryHistoricalData = () => setHistoricalRetry(value => value + 1);
 
   const outletData: DashboardOutletData = {
     alerts,
@@ -205,10 +183,6 @@ export default function DashboardProvider() {
     regionDataError,
     retryRegions,
     retryRegionData,
-    historicalData,
-    historicalLoading,
-    historicalError,
-    retryHistoricalData,
     simulationTier,
     runSimulation,
     resetSimulation,

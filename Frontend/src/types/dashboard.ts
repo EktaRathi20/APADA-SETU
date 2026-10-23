@@ -3,7 +3,6 @@ import type { ClimateAlert } from './alerts';
 import type {
   ApiRegion,
   DisasterIntelligenceResponse,
-  HistoricalResponse,
   RegionResponses,
 } from './api';
 import type { CityLocation } from './domain';
@@ -32,10 +31,6 @@ export interface DashboardOutletData {
   regionDataError: string | null;
   retryRegions: () => void;
   retryRegionData: () => void;
-  historicalData: HistoricalResponse | null;
-  historicalLoading: boolean;
-  historicalError: string | null;
-  retryHistoricalData: () => void;
   simulationTier: SimulationTier | null;
   runSimulation: (tier: SimulationTier, regionKey?: string, region?: ApiRegion) => void;
   resetSimulation: () => void;
