@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-10-23T07:47:50.107999+00:00",
+  "region_target": "odisha",
+  "temperature_c": 32.2,
+  "condition": "Partly sunny",
+  "wind_speed_kmh": 10,
+  "wind_direction": "NORTHEAST",
+  "pressure_hpa": 1009.4,
+  "relative_humidity_percent": 55,
+  "system_name": "Google Weather API",
+  "source": "Google Weather API",
+  "source_fallback": false
+}

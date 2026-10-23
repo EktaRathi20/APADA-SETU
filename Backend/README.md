@@ -5,12 +5,14 @@ FastAPI service for the APADA-SETU climate-risk dashboard. The system architectu
 ## Stack and Modules
 
 - Python 3.10+ (Python 3.11+ recommended), FastAPI, Pydantic, Uvicorn, and Python Socket.IO.
+- `application.py` creates the FastAPI application, configures middleware and startup, and wraps the API with Socket.IO. `server.py` remains the deployment entry point (`server:app`).
+- `api/routes/` contains HTTP route groups; `schemas/requests.py` contains request models; `services/` contains alert and AI orchestration; `integrations/` contains external delivery adapters such as WhatsApp. Provider integrations and ingestion logic remain in `ingestion_layer/`.
 - Google Weather API for current conditions and forecast, with Open-Meteo fallback when Google Weather is unavailable.
 - Google Places API (New) for nearby hospitals and shelters.
 - Google Earth Engine / WorldPop for population estimates; Sentinel-1 SAR retrieval is available in the ingestion module.
 - NOAA IBTrACS North Indian Ocean CSV for historical cyclone tracks. Results are grouped by storm and region, with an in-process six-hour cache.
 - `ingestion_layer/constant.py`: names, bounds, coordinates, and history radii for the supported regions.
-- `ingestion_layer/index.py`: batch ingestion utility; not called by the HTTP routes. It writes generated images/JSON under `data/ingested/`.
+- `ingestion_layer/index.py`: ingestion orchestration used by disaster-intelligence and dispatch routes. It writes generated images/JSON under `data/ingested/`.
 - `utils/list_models.py`: optional Gemini model-listing utility; Gemini is not the historical-data source.
 
 Installable Python packages are listed in `requirements.txt`.

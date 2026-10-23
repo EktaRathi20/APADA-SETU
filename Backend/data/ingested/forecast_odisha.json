@@ -1,0 +1,43 @@
+{
+  "region_target": "odisha",
+  "timestamp": "2026-10-23T07:47:45.032293+00:00",
+  "data": {
+    "region_target": "odisha",
+    "latitude": 19.8135,
+    "longitude": 85.8312,
+    "forecast": [
+      {
+        "date": "2026-10-23",
+        "max_temp_c": 32.3,
+        "min_temp_c": 22.4,
+        "condition": "Partly sunny"
+      },
+      {
+        "date": "2026-10-24",
+        "max_temp_c": 32.1,
+        "min_temp_c": 22.3,
+        "condition": "Partly sunny"
+      },
+      {
+        "date": "2026-10-25",
+        "max_temp_c": 31.3,
+        "min_temp_c": 21.5,
+        "condition": "Cloudy"
+      },
+      {
+        "date": "2026-10-26",
+        "max_temp_c": 30.5,
+        "min_temp_c": 24,
+        "condition": "Rain"
+      },
+      {
+        "date": "2026-10-27",
+        "max_temp_c": 27.8,
+        "min_temp_c": 25,
+        "condition": "Rain"
+      }
+    ],
+    "source": "Google Weather API",
+    "source_fallback": false
+  }
+}

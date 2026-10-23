@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-10-23T08:08:22.488359+00:00",
+  "region_target": "chennai",
+  "temperature_c": 28.6,
+  "condition": "Cloudy",
+  "wind_speed_kmh": 8,
+  "wind_direction": "NORTH_NORTHEAST",
+  "pressure_hpa": 1009.42,
+  "relative_humidity_percent": 80,
+  "system_name": "Google Weather API",
+  "source": "Google Weather API",
+  "source_fallback": false
+}
