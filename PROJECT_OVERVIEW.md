@@ -47,7 +47,7 @@ Some frontend packages declared in `package.json` (including Express, frontend d
 | `Frontend/src/climateAlerts.ts`, `useClimateAlerts.ts` | Alert contracts, REST snapshot, Socket.IO connection, unread state |
 | `Frontend/src/components/MapComponent.tsx` | OpenStreetMap basemap and coordinate-based facility markers |
 | `Frontend/src/components/HistoricalDisastersView.tsx` | NOAA-backed cyclone track history |
-| `Frontend/src/components/ClimateAlertInbox.tsx` | Alert list and detail view |
+| `Frontend/src/components/Notification.tsx` | Alert list and detail view |
 | `Backend/whatsapp.py` | Twilio Verify OTP, rate-limited SQLite subscriber registry, and WhatsApp template sender |
 | `Frontend/src/components/modes/`, `src/data/mockData.ts` | Legacy/demo workflow components; non-overview workflows are not connected in the active app |
 | `Backend/server.py` | FastAPI routes, alert validation/ingest, Socket.IO ASGI wrapper |
