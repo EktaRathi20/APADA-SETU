@@ -57,12 +57,13 @@ export const LandfallRescueModeView: React.FC<LandfallRescueModeViewProps> = ({
 
       setMessages(prev => [...prev, systemMsg]);
     } catch (error) {
-      console.error("Chat Error:", error);
+      const reason = error instanceof Error ? error.message : 'The dispatch service could not be reached.';
+      setInputText(query.trim());
       const errorMsg: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         sender: 'system',
         senderName: 'System Error',
-        text: 'Telemetry failed. Switch to manual radio.',
+        text: `Dispatch request failed: ${reason} Do not use an unverified route; switch to manual radio or retry the request.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' IST',
       };
       setMessages(prev => [...prev, errorMsg]);

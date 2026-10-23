@@ -15,6 +15,8 @@ export interface DashboardOutletData {
   unreadCount: number;
   connectionState: 'connecting' | 'connected' | 'disconnected';
   alertsError: string | null;
+  alertsLoading: boolean;
+  retryAlerts: () => void;
   markAllRead: () => void;
   regions: Record<string, ApiRegion>;
   selectedRegionKey: string;
@@ -27,9 +29,13 @@ export interface DashboardOutletData {
   activeIntelligence: DisasterIntelligenceResponse | null;
   regionLoading: boolean;
   regionError: string | null;
+  regionDataError: string | null;
+  retryRegions: () => void;
+  retryRegionData: () => void;
   historicalData: HistoricalResponse | null;
   historicalLoading: boolean;
   historicalError: string | null;
+  retryHistoricalData: () => void;
   simulationTier: SimulationTier | null;
   runSimulation: (tier: SimulationTier, regionKey?: string, region?: ApiRegion) => void;
   resetSimulation: () => void;

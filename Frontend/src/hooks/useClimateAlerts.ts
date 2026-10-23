@@ -12,11 +12,13 @@ export function useClimateAlerts() {
   const [unreadIds, setUnreadIds] = useState<Set<string>>(() => new Set());
   const [connectionState, setConnectionState] = useState<AlertConnectionState>('connecting');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [snapshotRetry, setSnapshotRetry] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
-    const socket = createClimateAlertSocket();
-
+    setIsLoading(true);
+    setError(null);
     api.getClimateAlerts(controller.signal)
       .then((initialAlerts) => {
         setAlerts((current) => {
@@ -33,10 +35,19 @@ export function useClimateAlerts() {
         });
         setError(null);
       })
-      .catch((loadError: Error) => {
-        if (loadError.name !== 'AbortError') setError(loadError.message);
+      .catch((loadError: unknown) => {
+        if (!(loadError instanceof Error && loadError.name === 'AbortError')) {
+          setError(loadError instanceof Error ? loadError.message : 'Could not load the alert snapshot.');
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoading(false);
       });
+    return () => controller.abort();
+  }, [snapshotRetry]);
 
+  useEffect(() => {
+    const socket = createClimateAlertSocket();
     socket.on('connect', () => setConnectionState('connected'));
     socket.on('disconnect', () => setConnectionState('disconnected'));
     socket.on('connect_error', () => setConnectionState('disconnected'));
@@ -52,7 +63,6 @@ export function useClimateAlerts() {
     socket.connect();
 
     return () => {
-      controller.abort();
       socket.disconnect();
     };
   }, []);
@@ -64,6 +74,8 @@ export function useClimateAlerts() {
     unreadCount: unreadIds.size,
     connectionState,
     error,
+    isLoading,
+    retry: () => setSnapshotRetry(value => value + 1),
     markAllRead: () => setUnreadIds(new Set()),
   };
 }

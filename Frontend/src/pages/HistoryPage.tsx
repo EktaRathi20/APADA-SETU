@@ -11,6 +11,7 @@ export default function HistoryPage() {
       history={dashboard.historicalData}
       isLoading={dashboard.historicalLoading}
       error={dashboard.historicalError}
+      onRetry={dashboard.retryHistoricalData}
       regionName={dashboard.selectedCity?.name ?? ''}
       onBackToOverview={() => navigate('/overview')}
     />
