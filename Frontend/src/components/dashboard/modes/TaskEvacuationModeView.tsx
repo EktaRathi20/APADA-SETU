@@ -177,7 +177,7 @@ export const TaskEvacuationModeView: React.FC<TaskEvacuationModeViewProps> = ({
 
       {error && !disasterIntelligence && (
         <div role="status" className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">
-          Disaster intelligence could not be loaded: {error}
+          Data is temporarily unavailable. Retry after sometime.
         </div>
       )}
       {isLoading && <div role="status" aria-live="polite" className="flex items-center gap-2 rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-xs font-medium text-cyan-950"><LoaderCircle size={14} className="animate-spin" />Loading live response recommendations and mapped resources…</div>}

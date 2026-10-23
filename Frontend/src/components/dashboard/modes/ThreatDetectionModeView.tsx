@@ -58,7 +58,7 @@ export const ThreatDetectionModeView: React.FC<ThreatDetectionModeViewProps> = (
           <div>
             <h1 className="text-lg font-bold text-slate-900">Threat Detection · {city.name}</h1>
             <p className="mt-0.5 text-xs text-slate-500">
-              {isLoading ? 'Refreshing disaster intelligence…' : error ?? assessment?.note ?? 'Risk screening from current backend telemetry'}
+              {isLoading ? 'Refreshing disaster intelligence…' : assessment?.note ?? 'Risk screening from current backend telemetry'}
             </p>
           </div>
         </div>
@@ -76,7 +76,7 @@ export const ThreatDetectionModeView: React.FC<ThreatDetectionModeViewProps> = (
       {isLoading && <div role="status" aria-live="polite" className="flex items-center gap-2 rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-xs font-medium text-cyan-950"><LoaderCircle size={14} className="animate-spin" />Loading live telemetry, history, and response resources…</div>}
       {error && !disasterIntelligence && (
         <div role="status" className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">
-          Disaster intelligence could not be loaded: {error}
+          Data is temporarily unavailable. Retry after sometime.
         </div>
       )}
 

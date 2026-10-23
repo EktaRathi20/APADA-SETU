@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/services/api';
 import type { WhatsAppConfigurationResponse } from '@/types/api';
+import { isAbortError } from '@/services/apiError';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [whatsappAction, setWhatsappAction] = useState<'subscribe' | 'unsubscribe'>('subscribe');
   const [whatsappStep, setWhatsappStep] = useState<'idle' | 'code-sent' | 'verified'>(() => localStorage.getItem('whatsapp-verified') === 'true' ? 'verified' : 'idle');
   const [whatsappConfiguration, setWhatsappConfiguration] = useState<WhatsAppConfigurationResponse | null>(null);
+  const [whatsappConfigurationLoading, setWhatsappConfigurationLoading] = useState(false);
+  const [whatsappConfigurationRetry, setWhatsappConfigurationRetry] = useState(0);
   const [whatsappError, setWhatsappError] = useState<string | null>(null);
   const [whatsappWelcomeNotice, setWhatsappWelcomeNotice] = useState<string | null>(null);
   const [whatsappBusy, setWhatsappBusy] = useState(false);
@@ -31,11 +34,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   useEffect(() => {
     if (!isOpen || activeTab !== 'alerts') return;
     const controller = new AbortController();
+    setWhatsappConfigurationLoading(true);
+    setWhatsappError(null);
     api.getWhatsAppConfiguration(controller.signal)
       .then(setWhatsappConfiguration)
-      .catch((error: Error) => setWhatsappError(error.message));
+      .catch((error: unknown) => {
+        if (!isAbortError(error)) {
+          setWhatsappError(error instanceof Error ? error.message : 'WhatsApp configuration could not be loaded.');
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setWhatsappConfigurationLoading(false);
+      });
     return () => controller.abort();
-  }, [activeTab, isOpen]);
+  }, [activeTab, isOpen, whatsappConfigurationRetry]);
 
   if (!isOpen) return null;
 
@@ -252,7 +264,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {whatsappConfiguration && !whatsappConfiguration.verification_configured && (
                 <p className="text-xs text-amber-900">Twilio WhatsApp Sandbox OTP is not configured. Add the backend Account SID, Auth Token, and pre-approved OTP Content SID.</p>
               )}
-              {whatsappError && <p role="alert" className="text-xs text-rose-700">{whatsappError}</p>}
+              {whatsappConfigurationLoading && <p role="status" className="text-xs text-slate-600">Loading WhatsApp configuration…</p>}
+              {whatsappError && (
+                <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2">
+                  <p className="text-xs text-rose-700">{whatsappError}</p>
+                  <button type="button" onClick={() => setWhatsappConfigurationRetry(value => value + 1)} className="shrink-0 text-xs font-semibold text-rose-800 underline underline-offset-2">
+                    Retry
+                  </button>
+                </div>
+              )}
               <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-900">
                 <MessageCircle size={15} className="mt-0.5 shrink-0" />
                 <p>By verifying, you consent to receive climate-alert WhatsApp messages. The backend stores the verified number in its local SQLite database. Sandbox recipients must first join the Twilio WhatsApp Sandbox; its free-form messages require an active customer-service window. Use the toggle and verify again to unsubscribe. Twilio credentials stay on the backend.</p>

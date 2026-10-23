@@ -58,6 +58,8 @@ export const SimulatorModeView: React.FC<SimulatorModeViewProps> = ({
   const [isAlertOpen, setIsAlertOpen] = useState(true);
   const [whatsappConfiguration, setWhatsappConfiguration] = useState<WhatsAppConfigurationResponse | null>(null);
   const [configurationError, setConfigurationError] = useState<string | null>(null);
+  const [configurationLoading, setConfigurationLoading] = useState(true);
+  const [configurationRetry, setConfigurationRetry] = useState(0);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastError, setBroadcastError] = useState<string | null>(null);
   const [broadcastResult, setBroadcastResult] = useState<SimulatorBroadcastResponse | null>(null);
@@ -81,13 +83,20 @@ export const SimulatorModeView: React.FC<SimulatorModeViewProps> = ({
 
   useEffect(() => {
     const controller = new AbortController();
+    setConfigurationLoading(true);
+    setConfigurationError(null);
     api.getWhatsAppConfiguration(controller.signal)
       .then(setWhatsappConfiguration)
-      .catch((error: Error) => {
-        if (error.name !== 'AbortError') setConfigurationError(error.message);
+      .catch((error: unknown) => {
+        if (!(error instanceof Error && error.name === 'AbortError')) {
+          setConfigurationError(error instanceof Error ? error.message : 'WhatsApp configuration could not be loaded.');
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setConfigurationLoading(false);
       });
     return () => controller.abort();
-  }, []);
+  }, [configurationRetry]);
 
   useEffect(() => {
     setSelectedWard(locations[0] ?? `${regionName} response area`);
@@ -253,8 +262,16 @@ export const SimulatorModeView: React.FC<SimulatorModeViewProps> = ({
 
               <div className="grid grid-cols-1 gap-2 text-[11px] sm:grid-cols-2">
                 <ChannelStatus icon={connectionState === 'connected' ? <Wifi size={14} /> : <WifiOff size={14} />} label="Socket.IO" value={connectionState === 'connected' ? 'Connected' : connectionState === 'connecting' ? 'Connecting' : 'Disconnected'} />
-                <ChannelStatus icon={<BellRing size={14} />} label="Sandbox" value={whatsappConfiguration?.delivery_configured ? 'Ready for joined recipients' : configurationError ? 'Configuration unavailable' : 'Not configured'} />
+                <ChannelStatus icon={<BellRing size={14} />} label="Sandbox" value={whatsappConfiguration?.delivery_configured ? 'Ready for joined recipients' : configurationError ? 'Configuration unavailable' : configurationLoading ? 'Checking configuration…' : 'Not configured'} />
               </div>
+              {configurationError && (
+                <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                  <span>{configurationError}</span>
+                  <button type="button" onClick={() => setConfigurationRetry(value => value + 1)} className="shrink-0 font-semibold underline underline-offset-2">
+                    Retry configuration
+                  </button>
+                </div>
+              )}
 
               <label className="block text-xs font-semibold text-slate-700" htmlFor="sim-alert-whatsapp">WhatsApp recipient (optional)
                 <input id="sim-alert-whatsapp" type="tel" inputMode="tel" autoComplete="tel" value={whatsappNumber} onChange={event => setWhatsappNumber(event.target.value)} placeholder="+14155552671" className="mt-1.5 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-800 focus:border-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-100" />

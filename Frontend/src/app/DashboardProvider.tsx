@@ -7,6 +7,20 @@ import { useClimateAlerts } from '../hooks/useClimateAlerts';
 import { createSimulatedIntelligence, SimulationTier } from '../features/simulator/simulator';
 import { buildCity } from '../utils/transformers';
 import type { DashboardOutletData } from '../types/dashboard';
+import { isAbortError } from '../services/apiError';
+
+const errorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : 'The request failed unexpectedly.';
+
+const FALLBACK_REGIONS: Record<string, ApiRegion> = {
+  vizag: {
+    min_lon: 83.15,
+    min_lat: 17.65,
+    max_lon: 83.35,
+    max_lat: 17.75,
+    name: 'Visakhapatnam',
+  },
+};
 
 const routeModes = {
   '/overview': 'overview',
@@ -28,6 +42,8 @@ export default function DashboardProvider() {
     unreadCount,
     connectionState,
     error: alertsError,
+    isLoading: alertsLoading,
+    retry: retryAlerts,
     markAllRead,
   } = useClimateAlerts();
 
@@ -38,9 +54,13 @@ export default function DashboardProvider() {
   const [simulatedIntelligence, setSimulatedIntelligence] = useState<DisasterIntelligenceResponse | null>(null);
   const [regionLoading, setRegionLoading] = useState(true);
   const [regionError, setRegionError] = useState<string | null>(null);
+  const [regionDataError, setRegionDataError] = useState<string | null>(null);
+  const [regionsRetry, setRegionsRetry] = useState(0);
+  const [regionDataRetry, setRegionDataRetry] = useState(0);
   const [historicalData, setHistoricalData] = useState<HistoricalResponse | null>(null);
   const [historicalLoading, setHistoricalLoading] = useState(false);
   const [historicalError, setHistoricalError] = useState<string | null>(null);
+  const [historicalRetry, setHistoricalRetry] = useState(0);
   const [toastAlert, setToastAlert] = useState<ClimateAlert | null>(null);
   const [showMangroveLayer, setShowMangroveLayer] = useState(true);
   const [showHistoricalLayer, setShowHistoricalLayer] = useState(false);
@@ -85,25 +105,34 @@ export default function DashboardProvider() {
 
   useEffect(() => {
     const controller = new AbortController();
+    setRegionLoading(true);
+    setRegionError(null);
     api.getRegions(controller.signal)
       .then((data) => {
+        if (Object.keys(data).length === 0) {
+          setRegionError('Region information is temporarily unavailable.');
+          setRegions(current => Object.keys(current).length ? current : FALLBACK_REGIONS);
+          return;
+        }
         setRegions(data);
         if (!data[selectedRegionKey]) setSelectedRegionKey(Object.keys(data)[0] ?? '');
-        setRegionError(null);
       })
-      .catch((error: Error) => {
-        if (error.name !== 'AbortError') setRegionError('Could not load regions. Check that the backend is running.');
+      .catch((error: unknown) => {
+        if (!isAbortError(error)) {
+          setRegionError('Region information is temporarily unavailable.');
+          setRegions(current => Object.keys(current).length ? current : FALLBACK_REGIONS);
+        }
       })
       .finally(() => setRegionLoading(false));
     return () => controller.abort();
-  }, []);
+  }, [regionsRetry]);
 
   useEffect(() => {
     if (!selectedRegion) return;
     const controller = new AbortController();
     setRegionLoading(true);
     setRegionResponses(null);
-    setRegionError(null);
+    setRegionDataError(null);
     Promise.allSettled([
       api.getPopulation(selectedRegionKey, controller.signal),
       api.getForecast(selectedRegionKey, controller.signal),
@@ -118,21 +147,19 @@ export default function DashboardProvider() {
         infrastructure: infrastructure.status === 'fulfilled' ? infrastructure.value : null,
         currentConditions: currentConditions.status === 'fulfilled' ? currentConditions.value : null,
         disasterIntelligence: disasterIntelligence.status === 'fulfilled' ? disasterIntelligence.value : null,
-        currentConditionsError: currentConditions.status === 'rejected' ? currentConditions.reason.message : null,
+        currentConditionsError: currentConditions.status === 'rejected' ? errorMessage(currentConditions.reason) : null,
         disasterIntelligenceError: disasterIntelligence.status === 'rejected'
-          ? disasterIntelligence.reason instanceof Error
-            ? disasterIntelligence.reason.message
-            : 'Disaster intelligence could not be loaded.'
+          ? errorMessage(disasterIntelligence.reason)
           : null,
       });
-      const failedSources = [population, forecast, infrastructure, currentConditions, disasterIntelligence]
-        .filter(result => result.status === 'rejected').length;
-      setRegionError(failedSources ? `${failedSources} data source${failedSources > 1 ? 's' : ''} could not be loaded.` : null);
+      const hasFailedSources = [population, forecast, infrastructure, currentConditions, disasterIntelligence]
+        .some(result => result.status === 'rejected');
+      setRegionDataError(hasFailedSources ? 'Some dashboard information is temporarily unavailable.' : null);
     }).finally(() => {
       if (!controller.signal.aborted) setRegionLoading(false);
     });
     return () => controller.abort();
-  }, [selectedRegion, selectedRegionKey]);
+  }, [selectedRegion, selectedRegionKey, regionDataRetry]);
 
   useEffect(() => {
     if (location.pathname !== '/history') return;
@@ -142,14 +169,18 @@ export default function DashboardProvider() {
     setHistoricalData(null);
     api.getHistory(selectedRegionKey, controller.signal)
       .then(setHistoricalData)
-      .catch((error: Error) => {
-        if (error.name !== 'AbortError') setHistoricalError(error.message);
+      .catch((error: unknown) => {
+        if (!isAbortError(error)) setHistoricalError(errorMessage(error));
       })
       .finally(() => {
         if (!controller.signal.aborted) setHistoricalLoading(false);
       });
     return () => controller.abort();
-  }, [location.pathname, selectedRegionKey]);
+  }, [location.pathname, selectedRegionKey, historicalRetry]);
+
+  const retryRegions = () => setRegionsRetry(value => value + 1);
+  const retryRegionData = () => setRegionDataRetry(value => value + 1);
+  const retryHistoricalData = () => setHistoricalRetry(value => value + 1);
 
   const outletData: DashboardOutletData = {
     alerts,
@@ -157,6 +188,8 @@ export default function DashboardProvider() {
     unreadCount,
     connectionState,
     alertsError,
+    alertsLoading,
+    retryAlerts,
     markAllRead,
     regions,
     selectedRegionKey,
@@ -169,9 +202,13 @@ export default function DashboardProvider() {
     activeIntelligence,
     regionLoading,
     regionError,
+    regionDataError,
+    retryRegions,
+    retryRegionData,
     historicalData,
     historicalLoading,
     historicalError,
+    retryHistoricalData,
     simulationTier,
     runSimulation,
     resetSimulation,

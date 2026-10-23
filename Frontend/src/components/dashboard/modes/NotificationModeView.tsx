@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, ArrowLeft, MapPin, Radio, Search, Wifi, WifiOff } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, MapPin, Radio, RotateCcw, Search, Wifi, WifiOff } from 'lucide-react';
 import { AlertConnectionState, ClimateAlert } from '@/services/climateAlerts';
 
 interface NotificationProps {
   alerts: ClimateAlert[];
   connectionState: AlertConnectionState;
   error: string | null;
+  isLoading: boolean;
+  onRetry: () => void;
   selectedRegionKey: string;
   regionName: string;
   onBack: () => void;
@@ -27,6 +29,8 @@ export function Notification({
   alerts,
   connectionState,
   error,
+  isLoading,
+  onRetry,
   selectedRegionKey,
   regionName,
   onBack,
@@ -76,7 +80,14 @@ export function Notification({
         </div>
       </header>
 
-      {error && <p role="status" className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{error}. Live alerts may still arrive over Socket.IO.</p>}
+      {error && (
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          <span>Data is temporarily unavailable. Retry after sometime.</span>
+          <button type="button" onClick={onRetry} className="inline-flex shrink-0 items-center gap-1.5 font-semibold underline underline-offset-2">
+            <RotateCcw size={13} /> Retry
+          </button>
+        </div>
+      )}
 
       <div className="grid min-h-[560px] grid-cols-1 gap-4 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.4fr)]">
         <section className="flex min-h-0 flex-col border-r-0 border-slate-200 lg:border-r lg:pr-4" aria-label="Alert list">
@@ -92,6 +103,11 @@ export function Notification({
           </div>
           <p className="mb-2 text-[11px] font-medium text-slate-500">{filteredAlerts.length} alert{filteredAlerts.length === 1 ? '' : 's'}</p>
           <div className="max-h-[68vh] space-y-2 overflow-y-auto pr-1">
+            {isLoading && alerts.length === 0 && (
+              <p role="status" className="rounded-md bg-slate-50 px-4 py-10 text-center text-sm text-slate-600">
+                Loading climate alerts…
+              </p>
+            )}
             {filteredAlerts.map((alert) => (
               <button key={alert.id} onClick={() => setSelectedId(alert.id)} className={`w-full rounded-md border p-3 text-left transition-colors ${selectedId === alert.id ? 'border-blue-400 bg-blue-50/70' : 'border-slate-200 bg-white hover:bg-slate-50'}`}>
                 <div className="flex items-start justify-between gap-2">
@@ -108,7 +124,7 @@ export function Notification({
                 </div>
               </button>
             ))}
-            {filteredAlerts.length === 0 && (
+            {filteredAlerts.length === 0 && !isLoading && !error && (
               <div className="rounded-md border border-dashed border-slate-300 px-4 py-10 text-center">
                 <AlertTriangle size={22} className="mx-auto text-slate-400" />
                 <p className="mt-2 text-sm font-medium text-slate-700">No alerts match</p>

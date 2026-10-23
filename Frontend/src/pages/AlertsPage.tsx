@@ -11,6 +11,8 @@ export default function AlertsPage() {
       alerts={dashboard.alerts}
       connectionState={dashboard.connectionState}
       error={dashboard.alertsError}
+      isLoading={dashboard.alertsLoading}
+      onRetry={dashboard.retryAlerts}
       selectedRegionKey={dashboard.selectedRegionKey}
       regionName={dashboard.selectedCity?.name ?? ''}
       onBack={() => navigate('/overview')}

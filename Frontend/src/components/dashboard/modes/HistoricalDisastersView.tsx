@@ -6,6 +6,7 @@ interface HistoricalDisastersViewProps {
   history: HistoricalResponse | null;
   isLoading: boolean;
   error: string | null;
+  onRetry: () => void;
   regionName: string;
   onBackToOverview?: () => void;
 }
@@ -14,6 +15,7 @@ export const HistoricalDisastersView: React.FC<HistoricalDisastersViewProps> = (
   history,
   isLoading,
   error,
+  onRetry,
   regionName,
   onBackToOverview,
 }) => {
@@ -65,7 +67,12 @@ export const HistoricalDisastersView: React.FC<HistoricalDisastersViewProps> = (
       {isLoading ? (
         <p className="py-12 text-center text-sm text-slate-500">Loading historical analogs…</p>
       ) : error ? (
-        <p role="alert" className="py-12 text-center text-sm text-rose-700">{error}</p>
+        <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-10 text-center">
+          <p role="alert" className="text-sm text-rose-800">{error}</p>
+          <button type="button" onClick={onRetry} className="mt-3 rounded-md bg-rose-700 px-3 py-2 text-xs font-semibold text-white hover:bg-rose-800">
+            Retry loading history
+          </button>
+        </div>
       ) : events.length === 0 ? (
         <p className="py-12 text-center text-sm text-slate-500">No historical analogs were returned for this region.</p>
       ) : (
