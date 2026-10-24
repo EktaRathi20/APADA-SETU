@@ -1,10 +1,21 @@
 import React from 'react';
-import { 
-  LayoutDashboard, History, Bell, 
-  AlertTriangle, CheckSquare, LifeBuoy, Banknote, FlaskConical,
-  ChevronRight, X
+import {
+  LayoutDashboard,
+  History,
+  Bell,
+  LifeBuoy,
+  Banknote,
+  FlaskConical,
+  ClipboardCheck,
+  CalendarClock,
+  ClipboardList,
+  ChevronRight,
+  X,
 } from 'lucide-react';
-import { OperationalMode } from '@/types/domain';
+import type { OperationalMode } from '@/types/domain';
+
+type ModuleKey = OperationalMode | 'history' | 'alerts';
+type RoleKey = 'assessment' | 'planner' | 'field' | 'recovery' | 'rescue' | 'unknown';
 
 interface SidebarProps {
   currentMode: OperationalMode;
@@ -17,6 +28,78 @@ interface SidebarProps {
   alertsCount?: number;
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
+  roleId?: string | number;
+  roleName?: string;
+  roleLevel?: number;
+}
+
+interface ModuleItem {
+  mode: ModuleKey;
+  label: string;
+  subtitle: string;
+  icon: React.ElementType;
+}
+
+const SHARED_MODULES: ModuleKey[] = ['overview', 'history', 'alerts'];
+
+const ROLE_CONFIG: Record<RoleKey, { modes: ModuleKey[] }> = {
+  // Role 1: Disaster Assessment Officer AND admin — access to every operational module.
+  assessment: {
+    modes: [...SHARED_MODULES, 'threat', 'tasks', 'fieldOps', 'landfall', 'recovery'],
+  },
+  planner: {
+    modes: [...SHARED_MODULES, 'threat', 'tasks'],
+  },
+  // Field Operations Officer gets a dedicated field reporting module.
+  field: {
+    modes: [...SHARED_MODULES, 'tasks', 'fieldOps'],
+  },
+  recovery: {
+    modes: [...SHARED_MODULES, 'recovery'],
+  },
+  rescue: {
+    modes: [...SHARED_MODULES, 'tasks', 'landfall'],
+  },
+  // Fail closed when the role is missing or unrecognised.
+  unknown: {
+    modes: SHARED_MODULES,
+  },
+};
+
+const MODULE_ITEMS: ModuleItem[] = [
+  { mode: 'overview', label: 'Situation Overview', subtitle: 'Situation at a glance', icon: LayoutDashboard },
+  { mode: 'history', label: 'Historical Disasters', subtitle: 'Past incidents and records', icon: History },
+  { mode: 'alerts', label: 'Notifications', subtitle: 'Alerts and updates', icon: Bell },
+  { mode: 'threat', label: 'Disaster Assessment', subtitle: 'Threats and risk screening', icon: ClipboardCheck },
+  { mode: 'tasks', label: 'Response Planning & Tasks', subtitle: 'Plans, assignments and evacuation', icon: CalendarClock },
+  { mode: 'fieldOps', label: 'Field Operations & Reporting', subtitle: 'Ground execution and field updates', icon: ClipboardList },
+  { mode: 'landfall', label: 'Rescue & Relief Operations', subtitle: 'Deployment, rescue and shelters', icon: LifeBuoy },
+  { mode: 'recovery', label: 'Recovery & Compensation', subtitle: 'Damage and claims', icon: Banknote },
+];
+
+function resolveRole(roleId?: string | number, roleName?: string, roleLevel?: number): RoleKey {
+  const id = String(roleId ?? '').trim().toLowerCase();
+  const name = String(roleName ?? '').trim().toLowerCase();
+
+  const roleByValue: Record<string, RoleKey> = {
+    role_1: 'assessment', '1': 'assessment', 'disaster assessment officer': 'assessment',
+    role_2: 'planner', '2': 'planner', 'operations planner': 'planner',
+    role_3: 'field', '3': 'field', 'field operations officer': 'field',
+    role_4: 'recovery', '4': 'recovery', 'insurance recovery officer': 'recovery',
+    role_5: 'rescue', '5': 'rescue', 'rescue relief officer': 'rescue',
+  };
+
+  if (roleByValue[name]) return roleByValue[name];
+  if (roleByValue[id]) return roleByValue[id];
+  if (roleLevel !== undefined && roleLevel >= 1 && roleLevel <= 5) {
+    return roleByValue[String(roleLevel)] ?? 'unknown';
+  }
+  if (name.includes('disaster assessment') || name.includes('admin')) return 'assessment';
+  if (name.includes('planner')) return 'planner';
+  if (name.includes('field')) return 'field';
+  if (name.includes('insurance') || name.includes('recovery')) return 'recovery';
+  if (name.includes('rescue') || name.includes('relief')) return 'rescue';
+  return 'unknown';
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -30,170 +113,137 @@ export const Sidebar: React.FC<SidebarProps> = ({
   alertsCount = 0,
   isMobileOpen = false,
   onCloseMobile,
+  roleId,
+  roleName,
+  roleLevel,
 }) => {
-  const projectFlowItems = [
-    {
-      mode: 'threat' as OperationalMode,
-      label: 'Threat Detection',
-      activeClass: 'bg-amber-50 text-amber-700 border-amber-500 shadow-sm',
-      iconColor: 'text-amber-600',
-      icon: AlertTriangle,
-    },
-    {
-      mode: 'tasks' as OperationalMode,
-      label: 'Task & Evacuation',
-      activeClass: 'bg-blue-50 text-blue-700 border-blue-600 shadow-sm',
-      iconColor: 'text-blue-600',
-      icon: CheckSquare,
-    },
-    {
-      mode: 'landfall' as OperationalMode,
-      label: 'Landfall Rescue',
-      activeClass: 'bg-rose-50 text-rose-700 border-rose-600 shadow-sm',
-      iconColor: 'text-rose-600',
-      icon: LifeBuoy,
-    },
-    {
-      mode: 'recovery' as OperationalMode,
-      label: 'Insurance & Recovery',
-      activeClass: 'bg-teal-50 text-teal-700 border-teal-600 shadow-sm',
-      iconColor: 'text-teal-600',
-      icon: Banknote,
-    },
-    {
-      mode: 'simulator' as OperationalMode,
-      label: 'Simulator Mode',
-      activeClass: 'bg-cyan-50 text-cyan-800 border-cyan-600 shadow-sm',
-      iconColor: 'text-cyan-700',
-      icon: FlaskConical,
-    },
-  ];
+  const roleKey = resolveRole(roleId, roleName, roleLevel);
+  const roleConfig = ROLE_CONFIG[roleKey];
 
-  // Helper for standardized light-mode menu item styling
-  const getItemClass = (isActive: boolean, activeStyles: string = 'bg-blue-50 text-blue-700 border-blue-600 shadow-sm') => {
-    return `w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-all border-l-4 ${
-      isActive 
-        ? activeStyles 
-        : 'border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+  const goToMode = (mode: OperationalMode) => {
+    onSelectHistoricalView(false);
+    onSelectNotificationView?.(false);
+    onSelectMode(mode);
+    onCloseMobile?.();
+  };
+
+  const handleHistoryClick = () => {
+    onSelectHistoricalView(true);
+    onSelectNotificationView?.(false);
+    onCloseMobile?.();
+  };
+
+  const handleNotificationsClick = () => {
+    if (onSelectNotificationView) {
+      onSelectNotificationView(true);
+      onSelectHistoricalView(false);
+      onCloseMobile?.();
+    } else {
+      onCloseMobile?.();
+      onOpenAlerts();
+    }
+  };
+
+  const sharedItems = MODULE_ITEMS.filter((item) => SHARED_MODULES.includes(item.mode));
+  const operationalItems = MODULE_ITEMS.filter(
+    (item) => !SHARED_MODULES.includes(item.mode) && roleConfig.modes.includes(item.mode),
+  );
+
+  const itemClass = (active: boolean) =>
+    `group flex w-full items-center gap-3 border-l-[3px] px-3 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-blue-800 ${active
+      ? 'border-l-[#17365d] bg-[#eaf0f7] font-semibold text-[#17365d]'
+      : 'border-l-transparent text-slate-700 hover:border-l-slate-400 hover:bg-slate-100'
     }`;
+
+  const renderItem = (item: ModuleItem) => {
+    const Icon = item.icon;
+    let active = false;
+    let onClick: () => void;
+
+    if (item.mode === 'history') {
+      active = isHistoricalView;
+      onClick = handleHistoryClick;
+    } else if (item.mode === 'alerts') {
+      active = isNotificationView;
+      onClick = handleNotificationsClick;
+    } else {
+      active = !isHistoricalView && !isNotificationView && currentMode === item.mode;
+      onClick = () => goToMode(item.mode as OperationalMode);
+    }
+
+    return (
+      <button
+        type="button"
+        key={item.mode}
+        onClick={onClick}
+        aria-current={active ? 'page' : undefined}
+        className={itemClass(active)}
+      >
+        <Icon size={18} className={active ? 'text-[#17365d]' : 'text-slate-500'} />
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs">{item.label}</span>
+          <span className={`mt-1 block text-[10px] font-normal ${active ? 'text-[#405d7c]' : 'text-slate-500'}`}>
+            {item.subtitle}
+          </span>
+        </span>
+        {item.mode === 'alerts' && alertsCount > 0 && (
+          <span className="min-w-5 border border-red-200 bg-red-50 px-1.5 py-0.5 text-center text-[10px] font-bold text-[#a12622]">
+            {alertsCount > 99 ? '99+' : alertsCount}
+          </span>
+        )}
+        {active && <ChevronRight size={14} className="shrink-0 text-[#17365d]" />}
+      </button>
+    );
   };
 
   return (
     <>
       {isMobileOpen && (
-        <button
-          type="button"
-          aria-label="Close navigation menu"
-          onClick={onCloseMobile}
-          className="fixed inset-0 z-40 bg-slate-950/40 md:hidden"
-        />
+        <button type="button" aria-label="Close navigation menu" onClick={onCloseMobile}
+          className="fixed inset-0 z-40 bg-slate-950/40 md:hidden" />
       )}
-      <aside id="mobile-navigation" className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col justify-between border-r border-slate-200 bg-white shadow-xl transition-transform duration-200 md:static md:z-auto md:min-h-[calc(100vh-65px)] md:w-64 md:shrink-0 md:translate-x-0 md:shadow-none select-none ${
-        isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-      }`}>
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 md:hidden">
-          <span className="text-sm font-bold text-slate-900">APADA-SETU</span>
-          <button
-            type="button"
-            aria-label="Close navigation menu"
-            onClick={onCloseMobile}
-            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"
-          >
-            <X size={18} />
-          </button>
-        </div>
-        <nav aria-label="Main navigation" className="flex-1 overflow-y-auto p-4 space-y-6">
-        
-        {/* Core Nav Group */}
-        <div>
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2 block px-1">
-            Main Menu
-          </span>
-          <div className="space-y-1">
-            <button
-              onClick={() => {
-                onSelectHistoricalView(false);
-                if (onSelectNotificationView) onSelectNotificationView(false);
-                onSelectMode('overview');
-              }}
-              className={getItemClass(!isHistoricalView && !isNotificationView && currentMode === 'overview')}
-            >
-              <div className="flex items-center gap-3">
-                <LayoutDashboard size={18} className={!isHistoricalView && !isNotificationView && currentMode === 'overview' ? 'text-blue-600' : 'text-slate-400'} />
-                <span>Dashboard Overview</span>
-              </div>
-            </button>
+      <aside id="mobile-navigation"
+        className={`fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-slate-300 bg-white transition-transform duration-200 md:static md:z-auto  md:w-64 md:shrink-0 md:translate-x-0 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+          }`}>
 
-            <button
-              onClick={() => {
-                onSelectHistoricalView(true);
-                if (onSelectNotificationView) onSelectNotificationView(false);
-              }}
-              className={getItemClass(isHistoricalView)}
-            >
-              <div className="flex items-center gap-3">
-                <History size={18} className={isHistoricalView ? 'text-blue-600' : 'text-slate-400'} />
-                <span>Historical Disasters</span>
-              </div>
-            </button>
-
-            <button
-              onClick={() => {
-                if (onSelectNotificationView) {
-                  onSelectNotificationView(true);
-                  onSelectHistoricalView(false);
-                } else {
-                  onOpenAlerts();
-                }
-              }}
-              className={getItemClass(isNotificationView, 'bg-purple-50 text-purple-700 border-purple-600 shadow-sm')}
-            >
-              <div className="flex items-center gap-3">
-                <Bell size={18} className={isNotificationView ? 'text-purple-600' : 'text-slate-400'} />
-                <span>Notifications</span>
-              </div>
-              {alertsCount > 0 && (
-                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
-                  {alertsCount}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Project Flow Stages Group */}
-        <div>
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2 block px-1">
-            Operational Phases
-          </span>
-          <div className="space-y-1">
-            {projectFlowItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = !isHistoricalView && !isNotificationView && currentMode === item.mode;
-
-              return (
-                <button
-                  key={item.mode}
-                  onClick={() => {
-                    onSelectHistoricalView(false);
-                    if (onSelectNotificationView) onSelectNotificationView(false);
-                    onSelectMode(item.mode);
-                  }}
-                  className={getItemClass(isActive, item.activeClass)}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon size={18} className={isActive ? item.iconColor : 'text-slate-400'} />
-                    <div className="text-left">
-                      <div className="leading-tight">{item.label}</div>
-                    </div>
-                  </div>
-                  {isActive && <ChevronRight size={14} className="text-slate-400 shrink-0" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <nav aria-label="Main navigation" className="flex-1 overflow-y-auto">
+          <section aria-label="Main menu">
+            {isMobileOpen && (
+              <h1 className="mt-0.5 truncate text-lg font-bold tracking-wide sm:text-xl mb-2 border-b border-slate-200 text-center">
+                APADA-SETU
+              </h1>
+          )}
+            <div>{sharedItems.map(renderItem)}</div>
+            </section>
+          <section aria-label="Role-specific operational modules">
+            <h2 className="mb-2 border-b border-slate-200 px-4 pb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
+              OPERATIONAL MODULES
+            </h2>
+            <div>{operationalItems.map(renderItem)}</div>
+            
+          </section>
         </nav>
+<div className="mt-auto border-t border-slate-300 bg-slate-50">
+              <button type="button" onClick={() => goToMode('simulator' as OperationalMode)}
+                aria-current={!isHistoricalView && !isNotificationView && currentMode === 'simulator' ? 'page' : undefined}
+                className={itemClass(!isHistoricalView && !isNotificationView && currentMode === 'simulator')}>
+                <FlaskConical size={18}
+                  className={!isHistoricalView && !isNotificationView && currentMode === 'simulator' ? 'text-[#17365d]' : 'text-slate-500'} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs">Simulator Mode</span>
+                  <span className="mt-1 block text-[10px] font-normal text-slate-500">Preparedness exercises</span>
+                </span>
+                {!isHistoricalView && !isNotificationView && currentMode === 'simulator' &&
+                  <ChevronRight size={14} className="shrink-0 text-[#17365d]" />}
+              </button>
+              <div className=" px-3 border-t border-slate-200 pt-3">
+                <div className="h-1 w-16 bg-[#d88b2b]" aria-hidden="true" />
+                <p className="mt-2 text-[10px] font-semibold text-slate-700">APADA-SETU</p>
+                <p className="mt-0.5 text-[10px] leading-4 text-slate-500">Integrated disaster coordination</p>
+                <p className="mt-1 text-[9px] text-slate-400">Hackathon demonstration portal</p>
+              </div>
+            </div>
+
       </aside>
     </>
   );

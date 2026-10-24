@@ -1,9 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  CloudRain, MapPin, Bell, ChevronDown, Menu,
-  Settings, History, LogOut
-} from 'lucide-react';
-import { CityLocation, OfficerUser } from '@/types/domain';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ShieldCheck,
+  MapPin,
+  Bell,
+  ChevronDown,
+  Menu,
+  Settings,
+  History,
+  LogOut,
+  X,
+  AlertTriangle,
+  CheckCircle2,
+  Clock3,
+} from "lucide-react";
+import type { AuthUser } from "@/types";
+import type { CityLocation } from "@/types/domain";
 
 interface HeaderProps {
   selectedCity: CityLocation;
@@ -13,7 +24,7 @@ interface HeaderProps {
   onOpenSettings: () => void;
   onOpenHistoricalDisasters?: () => void;
   unreadAlertsCount: number;
-  currentUser?: OfficerUser;
+  currentUser?: AuthUser;
   onLogout?: () => void;
   onOpenMobileNavigation: () => void;
   isMobileNavigationOpen: boolean;
@@ -34,241 +45,366 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const cityDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (cityDropdownRef.current && !cityDropdownRef.current.contains(e.target as Node)) {
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(target)) {
         setIsCityDropdownOpen(false);
       }
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target as Node)) {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(target)) {
         setIsProfileDropdownOpen(false);
       }
+      if (notificationsRef.current && !notificationsRef.current.contains(target)) {
+        setIsNotificationsOpen(false);
+      }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsCityDropdownOpen(false);
+        setIsProfileDropdownOpen(false);
+        setIsNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, []);
 
-  const filteredCities = availableCities.filter(c =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.region.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCities = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return availableCities.filter(
+      (city) =>
+        city.name.toLowerCase().includes(query) ||
+        city.region.toLowerCase().includes(query) ||
+        city.country.toLowerCase().includes(query),
+    );
+  }, [availableCities, searchQuery]);
 
-  const officerName = currentUser?.name || 'Dr. Aarav Sundaram, IAS';
-  const officerRole = currentUser?.title || 'Municipal Commissioner';
-  const officerInitials = currentUser?.avatarInitials || 'AS';
-  const officerEmail = currentUser?.email || 'aarav.sundaram@ddma.gov.in';
+  const officerName = currentUser?.name || "Signed-in Officer";
+  const officerRole =
+    currentUser?.roleName || "Disaster Management Officer";
+  const officerInitials =
+    officerName
+      .split(/\s+/)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  const officerEmail = currentUser?.email || "";
 
   return (
-    <header className="bg-white border-b border-slate-200 text-slate-800 sticky top-0 z-40 shadow-2xs">
-      {/* Primary Top Bar */}
-      <div className="px-3 sm:px-4 lg:px-6 py-2.5 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Brand Lockup (GOV / NDRF badge removed per user request) */}
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3 shrink-0">
-          <button
-            type="button"
-            aria-label="Open navigation menu"
-            aria-controls="mobile-navigation"
-            aria-expanded={isMobileNavigationOpen}
-            onClick={onOpenMobileNavigation}
-            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 md:hidden"
-          >
-            <Menu size={20} />
-          </button>
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-cyan-500 to-emerald-500 p-0.5 flex items-center justify-center shadow-xs">
-              <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                <CloudRain className="w-5 h-5 text-blue-600" />
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 font-sans">APADA-SETU</span>
-              </div>
-              <div className="hidden sm:block text-[10px] text-slate-500 tracking-wider">
-                Anticipate <span className="text-slate-300">·</span> Prepare <span className="text-slate-300">·</span> Stay Safe
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Location Selector Bar */}
-        <div ref={cityDropdownRef} className="relative max-w-md w-full hidden sm:block">
-          <div 
-            onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-            className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100/80 border border-slate-300 text-slate-800 rounded-full px-3.5 py-1.5 text-xs cursor-pointer shadow-2xs transition-colors"
-          >
-            <MapPin size={14} className="text-blue-600 shrink-0" />
-            <span className="font-semibold text-slate-900 truncate">
-              {selectedCity.name}, {selectedCity.region}, {selectedCity.country}
-            </span>
-            <div className="ml-auto flex items-center gap-1.5">
-              <ChevronDown size={14} className="text-slate-400" />
-            </div>
-          </div>
-
-          {/* Location Dropdown Modal */}
-          {isCityDropdownOpen && (
-            <div className="absolute top-full left-0 mt-1.5 w-full bg-white border border-slate-200 text-slate-900 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in duration-100">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search coastal zone or city..."
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 mb-2 focus:outline-none focus:border-blue-500"
-                autoFocus
-              />
-              <div className="max-h-56 overflow-y-auto space-y-1">
-                {filteredCities.map((city) => (
-                  <div
-                    key={city.id}
-                    onClick={() => {
-                      onSelectCity(city);
-                      setIsCityDropdownOpen(false);
-                      setSearchQuery('');
-                    }}
-                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer text-xs transition-colors ${
-                      selectedCity.id === city.id 
-                        ? 'bg-blue-50 text-blue-700 border border-blue-200 font-semibold' 
-                        : 'text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    <div>
-                      <div className="font-semibold text-slate-900">{city.name}</div>
-                      <div className="text-[11px] text-slate-500">{city.region}, {city.country}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Controls: Notifications & Profile with Dropdown (Last Synced and Live Telemetry removed) */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-          {/* Notifications Button */}
-          <button
-            onClick={onOpenNotifications}
-            className="relative p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition-colors cursor-pointer"
-            title="Notifications"
-          >
-            <Bell size={17} />
-            {unreadAlertsCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
-                {unreadAlertsCount}
-              </span>
-            )}
-          </button>
-
-          {/* User Profile Dropdown (Settings moved here) */}
-          <div ref={profileDropdownRef} className="relative">
+    <header className="sticky top-0 z-40 border-b border-slate-300 bg-white text-slate-800">
+      {/* Compact portal identity — matching the sign-in page */}
+      <div className="border-b-4 border-[#e5a044] bg-[#18365b] text-white">
+        <div className="mx-auto flex min-h-[76px] max-w-[1800px] items-center justify-between gap-3 px-3 py-3 sm:px-5 lg:px-7">
+          <div className="flex min-w-0 items-center gap-3">
             <button
-              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-              className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-colors cursor-pointer"
+              type="button"
+              aria-label={isMobileNavigationOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-controls="mobile-navigation"
+              aria-expanded={isMobileNavigationOpen}
+              onClick={onOpenMobileNavigation}
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center border border-white/40 bg-white/5 text-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:hidden"
             >
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
-                {officerInitials}
-              </div>
-              <div className="hidden md:block text-left text-xs leading-tight">
-                <div className="font-semibold text-slate-900">{officerName.split(',')[0]}</div>
-                <div className="text-[10px] text-slate-500">{officerRole}</div>
-              </div>
-              <ChevronDown size={14} className="text-slate-400" />
+              {isMobileNavigationOpen ? <X size={19} /> : <Menu size={19} />}
             </button>
 
-            {/* Profile Menu Dropdown */}
-            {isProfileDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in duration-100 text-xs">
-                {/* Officer Summary */}
-                <div className="p-3 bg-slate-50 rounded-xl mb-1.5 border border-slate-200/80">
-                  <div className="font-bold text-slate-900 text-sm">{officerName}</div>
-                  {/* <div className="text-slate-500 text-[11px]">{officerRole}</div> */}
-                  <div className="text-blue-600 text-[10px] font-mono mt-1 truncate">{officerEmail}</div>
-                </div>
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/40 bg-white/10 text-white sm:h-12 sm:w-12">
+              <ShieldCheck size={27} strokeWidth={1.7} />
+            </div>
 
-                <div className="space-y-0.5">
-                  {/* Settings Item */}
-                  <button
-                    onClick={() => {
-                      setIsProfileDropdownOpen(false);
-                      onOpenSettings();
-                    }}
-                    className="w-full flex items-center gap-2.5 px-1 py-1 rounded-xl hover:bg-blue-50 text-slate-700 hover:text-blue-700 transition-colors text-left font-medium"
-                  >
-                    <div className="w-5 h-5 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                      <Settings size={10} />
-                    </div>
-                    <div>
-                      <div className="font-bold text-slate-900">Settings</div>
-                      {/* <div className="text-[10px] text-slate-500">Thresholds, telemetry & GIS layers</div> */}
-                    </div>
-                  </button>
+            <div className="min-w-0">
+              <p className="hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-100 sm:block">
+                Disaster Management and Response
+              </p>
+              <h1 className="mt-0.5 truncate text-lg font-bold tracking-wide sm:text-xl">
+                APADA-SETU
+              </h1>
+              <p className="truncate text-[11px] text-blue-100 sm:text-xs">
+                Integrated Disaster Coordination Portal
+              </p>
+            </div>
+          </div>
 
-                  {/* Historical Disasters Shortcut */}
-                  {onOpenHistoricalDisasters && (
-                    <button
-                      onClick={() => {
-                        setIsProfileDropdownOpen(false);
-                        onOpenHistoricalDisasters();
-                      }}
-                      className="w-full flex items-center gap-2.5 px-1 py-1 rounded-xl hover:bg-slate-50 text-slate-700 transition-colors text-left"
-                    >
-                      <div className="w-5 h-5 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
-                        <History size={10} />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-slate-900">Historical Archive</div>
-                        {/* <div className="text-[10px] text-slate-500">Past cyclone & surge footprint records</div> */}
-                      </div>
-                    </button>
-                  )}
-
-                  {/* Switch Officer / Logout Option */}
-                  {onLogout && (
-                    <button
-                      onClick={() => {
-                        setIsProfileDropdownOpen(false);
-                        onLogout();
-                      }}
-                      className="w-full flex items-center gap-2.5 px-1 py-1 rounded-xl hover:bg-rose-50 text-rose-700 transition-colors text-left"
-                    >
-                      <div className="w-5 h-5 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
-                        <LogOut size={10} />
-                      </div>
-                      <div>
-                        <div className="font-bold text-rose-900">Switch Role / Sign Out</div>
-                      </div>
-                    </button>
-                  )}
-
-                </div>
-              </div>
-            )}
+          <div className="hidden shrink-0 text-right sm:block">
+            <p className="text-[10px] text-blue-100">Operational portal</p>
+            <p className="mt-0.5 text-xs font-semibold text-white">
+              {selectedCity.name}
+            </p>
           </div>
         </div>
       </div>
-      <label className="flex items-center gap-2 px-3 pb-2 sm:hidden">
-        <MapPin size={14} aria-hidden="true" className="shrink-0 text-blue-600" />
-        <span className="sr-only">Select region</span>
-        <select
-          value={selectedCity.id}
-          onChange={(event) => {
-            const city = availableCities.find((item) => item.id === event.target.value);
-            if (city) onSelectCity(city);
-          }}
-          className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-800"
-        >
-          {availableCities.map((city) => (
-            <option key={city.id} value={city.id}>
-              {city.name}, {city.region}
-            </option>
-          ))}
-        </select>
-      </label>
+
+      {/* Utility navigation row */}
+      <div className="bg-white">
+        <div className="mx-auto flex min-h-[54px] max-w-[1800px] items-center justify-between gap-3 px-3 py-2 sm:px-5 lg:px-7">
+          {/* Region selector */}
+          <div ref={cityDropdownRef} className="relative min-w-0 flex-1 sm:max-w-md sm:flex-none">
+            <button
+              type="button"
+              aria-expanded={isCityDropdownOpen}
+              onClick={() => {
+                setIsCityDropdownOpen((open) => !open);
+                setIsNotificationsOpen(false);
+                setIsProfileDropdownOpen(false);
+              }}
+              className="flex w-full items-center gap-2 border border-slate-300 bg-slate-50 px-3 py-2 text-left text-xs text-slate-800 hover:border-slate-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18365b]"
+            >
+              <MapPin size={15} className="shrink-0 text-[#234d77]" />
+              <span className="min-w-0 flex-1 truncate font-semibold">
+                {selectedCity.name}, {selectedCity.region}, {selectedCity.country}
+              </span>
+              <ChevronDown size={14} className="shrink-0 text-slate-500" />
+            </button>
+
+            {isCityDropdownOpen && (
+              <div className="absolute left-0 top-full z-50 mt-1 w-full min-w-[260px] border border-slate-300 bg-white shadow-lg">
+                <div className="border-b border-slate-200 bg-slate-50 p-2.5">
+                  <label
+                    htmlFor="header-region-search"
+                    className="mb-1 block text-[11px] font-semibold text-slate-700"
+                  >
+                    Select operational region
+                  </label>
+                  <input
+                    id="header-region-search"
+                    type="text"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Search city or region"
+                    className="w-full border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-[#18365b] focus:ring-1 focus:ring-[#18365b]"
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  {filteredCities.length === 0 ? (
+                    <p className="px-3 py-4 text-xs text-slate-500">
+                      No matching regions found.
+                    </p>
+                  ) : (
+                    filteredCities.map((city) => {
+                      const selected = selectedCity.id === city.id;
+                      return (
+                        <button
+                          type="button"
+                          key={city.id}
+                          onClick={() => {
+                            onSelectCity(city);
+                            setIsCityDropdownOpen(false);
+                            setSearchQuery("");
+                          }}
+                          className={`block w-full border-b border-slate-100 px-3 py-2.5 text-left last:border-b-0 ${
+                            selected
+                              ? "border-l-2 border-l-[#18365b] bg-blue-50"
+                              : "hover:bg-slate-50"
+                          }`}
+                        >
+                          <span className="block text-xs font-semibold text-slate-800">
+                            {city.name}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-slate-500">
+                            {city.region}, {city.country}
+                          </span>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right-side actions */}
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            {/* Notifications opens a dropdown; full page opens only from its link */}
+            <div ref={notificationsRef} className="relative">
+              <button
+                type="button"
+                aria-label={`Notifications${unreadAlertsCount > 0 ? `, ${unreadAlertsCount} unread` : ""}`}
+                aria-expanded={isNotificationsOpen}
+                aria-haspopup="dialog"
+                onClick={() => {
+                  setIsNotificationsOpen((open) => !open);
+                  setIsCityDropdownOpen(false);
+                  setIsProfileDropdownOpen(false);
+                }}
+                className="relative inline-flex h-9 w-9 items-center justify-center border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18365b]"
+              >
+                <Bell size={18} />
+                {unreadAlertsCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex min-h-4 min-w-4 items-center justify-center border border-white bg-[#b42318] px-1 text-[9px] font-bold text-white">
+                    {unreadAlertsCount > 99 ? "99+" : unreadAlertsCount}
+                  </span>
+                )}
+              </button>
+
+              {isNotificationsOpen && (
+                <div
+                  role="dialog"
+                  aria-label="Notifications"
+                  className="absolute right-0 top-full z-50 mt-2 w-[min(360px,calc(100vw-24px))] border border-slate-300 bg-white shadow-xl"
+                >
+                  <div className="flex items-start justify-between gap-3 border-b-2 border-[#e5a044] bg-[#18365b] px-4 py-3 text-white">
+                    <div>
+                      <h2 className="text-sm font-bold">Notifications</h2>
+                      <p className="mt-1 text-[11px] text-blue-100">
+                        APADA-SETU alert centre
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsNotificationsOpen(false)}
+                      aria-label="Close notifications"
+                      className="flex h-7 w-7 items-center justify-center border border-white/30 hover:bg-white/10"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+
+                  <div className="p-4">
+                    {unreadAlertsCount > 0 ? (
+                      <div className="flex items-start gap-3 border border-amber-200 bg-amber-50 p-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-amber-300 bg-white text-amber-800">
+                          <AlertTriangle size={17} />
+                        </span>
+                        <div>
+                          <p className="text-xs font-bold text-slate-800">
+                            {unreadAlertsCount} unread{" "}
+                            {unreadAlertsCount === 1 ? "notification" : "notifications"}
+                          </p>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">
+                            Open the notification centre to review the latest alerts and updates.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border border-slate-200 bg-slate-50 px-4 py-6 text-center">
+                        <CheckCircle2 size={23} className="mx-auto text-green-700" />
+                        <p className="mt-2 text-xs font-semibold text-slate-800">
+                          You are all caught up
+                        </p>
+                        <p className="mt-1 text-[11px] text-slate-500">
+                          No unread notifications.
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500">
+                      <Clock3 size={14} />
+                      Alert details are available in the notification centre.
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-200 bg-slate-50 p-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsNotificationsOpen(false);
+                        onOpenNotifications();
+                      }}
+                      className="w-full border border-[#18365b] bg-[#18365b] px-3 py-2.5 text-xs font-semibold text-white hover:bg-[#234d77] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18365b]"
+                    >
+                      Open notification centre
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Officer profile */}
+            <div ref={profileDropdownRef} className="relative">
+              <button
+                type="button"
+                aria-expanded={isProfileDropdownOpen}
+                onClick={() => {
+                  setIsProfileDropdownOpen((open) => !open);
+                  setIsCityDropdownOpen(false);
+                  setIsNotificationsOpen(false);
+                }}
+                className="flex items-center gap-2 border border-transparent px-1.5 py-1 hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18365b]"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-[#18365b] text-[11px] font-bold text-white">
+                  {officerInitials}
+                </span>
+                <span className="hidden max-w-40 text-left md:block">
+                  <span className="block truncate text-xs font-semibold text-slate-900">
+                    {officerName}
+                  </span>
+                  <span className="mt-0.5 block truncate text-[10px] text-slate-600">
+                    {officerRole}
+                  </span>
+                </span>
+                <ChevronDown size={14} className="text-slate-500" />
+              </button>
+
+              {isProfileDropdownOpen && (
+                <div className="absolute right-0 top-full z-50 mt-1 w-72 border border-slate-300 bg-white shadow-lg">
+                  <div className="border-b-2 border-[#e5a044] bg-slate-50 px-4 py-3">
+                    <p className="text-sm font-bold text-[#18365b]">{officerName}</p>
+                    <p className="mt-1 text-xs text-slate-600">{officerRole}</p>
+                    {officerEmail && (
+                      <p className="mt-1 break-all text-[11px] text-slate-500">
+                        {officerEmail}
+                      </p>
+                    )}
+                  </div>
+                  <div className="p-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileDropdownOpen(false);
+                        onOpenSettings();
+                      }}
+                      className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-xs font-medium text-slate-700 hover:bg-slate-100"
+                    >
+                      <Settings size={16} />
+                      Settings
+                    </button>
+                    {onOpenHistoricalDisasters && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsProfileDropdownOpen(false);
+                          onOpenHistoricalDisasters();
+                        }}
+                        className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-xs font-medium text-slate-700 hover:bg-slate-100"
+                      >
+                        <History size={16} />
+                        Historical archive
+                      </button>
+                    )}
+                    {onLogout && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsProfileDropdownOpen(false);
+                          onLogout();
+                        }}
+                        className="flex w-full items-center gap-3 border-t border-slate-200 px-3 py-2.5 text-left text-xs font-semibold text-[#a12622] hover:bg-red-50"
+                      >
+                        <LogOut size={16} />
+                        Sign out
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </header>
   );
 };
