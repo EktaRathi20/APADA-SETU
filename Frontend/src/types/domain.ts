@@ -5,7 +5,7 @@ export type OperationalMode =
   | 'tasks'         
   | 'landfall'       
   | 'recovery'       
-  | 'simulator';
+  | 'simulator'| 'fieldOps';
 
 export type UserRole = 
   | 'municipal_commissioner'

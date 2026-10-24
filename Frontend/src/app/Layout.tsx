@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BellRing, CloudRain, LoaderCircle, MapPin, RotateCcw, X } from 'lucide-react';
 import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { ClimateAlert } from '../services/climateAlerts';
-import { OfficerUser } from '../types/domain';
+import type { AuthUser } from '../types';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { EvacuationModal } from '@/components/dashboard/modals/EvacuationModal';
@@ -10,7 +10,7 @@ import { SettingsModal } from '@/components/dashboard/modals/SettingsModal';
 import type { DashboardOutletData } from '../types/dashboard';
 
 interface LayoutProps {
-  currentUser: OfficerUser;
+  currentUser: AuthUser;
   onLogout: () => void;
 }
 
@@ -19,6 +19,7 @@ const routeModes = {
   '/baseline': 'baseline',
   '/threat': 'threat',
   '/tasks': 'tasks',
+  '/fieldOps': 'fieldOps',
   '/landfall': 'landfall',
   '/recovery': 'recovery',
   '/simulator': 'simulator',
@@ -64,7 +65,7 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
   if (!dashboard.selectedCity || !dashboard.selectedRegion) return null;
 
   return (
-    <div className="min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white bg-slate-100 text-slate-800">
+    <div className="min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white bg-slate-100 text-slate-800" style={{overflow: 'hidden'}}>
       <Header
         onOpenMobileNavigation={() => setIsMobileSidebarOpen(true)}
         isMobileNavigationOpen={isMobileSidebarOpen}
@@ -92,7 +93,7 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
         onLogout={onLogout}
       />
 
-      <div className="flex min-w-0 flex-1 flex-row">
+      <div className="flex min-w-0 flex-1 flex-row" style={{maxHeight: '80vh'}}>
         <Sidebar
           isMobileOpen={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
@@ -127,9 +128,12 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
             dashboard.markAllRead();
           }}
           alertsCount={dashboard.unreadCount}
+          roleId={currentUser.roleId}
+          roleName={currentUser.roleName}
+          roleLevel={currentUser.roleLevel}
         />
 
-        <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6 overflow-x-hidden max-w-[1600px] w-full mx-auto">
+        <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6 overflow-x-hidden max-w-[1600px] w-full mx-auto" style={{ maxHeight: '80vh' }}>
           {(dashboard.regionError || dashboard.regionDataError) && (
             <div role="status" className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
               <span>

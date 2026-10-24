@@ -8,6 +8,21 @@ const instance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+
+instance.interceptors.request.use((config) => {
+  const token =
+    typeof sessionStorage !== "undefined"
+      ? sessionStorage.getItem("apada_access_token")
+      : null;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+
 instance.interceptors.response.use(
   response => response,
   (error: AxiosError<{ detail?: unknown }>) => {
