@@ -171,7 +171,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
     
 
-      <main className="mx-auto max-w-7xl px-4 py-7 sm:px-8 sm:py-10">
+      <main className="px-4 py-7 sm:px-8 sm:py-10" style={{maxHeight: '80vh', overflowY: 'auto'}}>
         {/* Page heading */}
         <div className="mb-7 border-b border-gray-300 pb-5">
           <p className="text-xs font-bold uppercase tracking-wider text-[#315b82]">

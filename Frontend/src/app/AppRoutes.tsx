@@ -11,7 +11,7 @@ import {
 import DashboardProvider from "./DashboardProvider";
 import Layout from "./Layout";
 import LoginPage from "../pages/LoginPage";
-import type { AuthUser } from "../services/authApi";
+import type { AuthUser } from "../types";
 
 import AlertsPage from "../pages/AlertsPage";
 import BaselinePage from "../pages/BaselinePage";
@@ -22,6 +22,7 @@ import RecoveryPage from "../pages/RecoveryPage";
 import SimulatorPage from "../pages/SimulatorPage";
 import TasksPage from "../pages/TasksPage";
 import ThreatPage from "../pages/ThreatPage";
+import FieldOperationPage from '@/pages/FieldOperationPage';
 
 export default function AppRoutes() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -77,11 +78,13 @@ export default function AppRoutes() {
             <Route path="/baseline" element={<BaselinePage />} />
             <Route path="/threat" element={<ThreatPage />} />
             <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/fieldOps" element={<FieldOperationPage />} />
             <Route path="/landfall" element={<LandfallPage />} />
             <Route path="/recovery" element={<RecoveryPage />} />
             <Route path="/simulator" element={<SimulatorPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
+             
 
             <Route index element={<Navigate to="/threat" replace />} />
             <Route path="*" element={<Navigate to="/threat" replace />} />
