@@ -67,7 +67,7 @@ const ROLE_CONFIG: Record<RoleKey, { modes: ModuleKey[] }> = {
 };
 
 const MODULE_ITEMS: ModuleItem[] = [
-  { mode: 'overview', label: 'Situation Overview', subtitle: 'Situation at a glance', icon: LayoutDashboard },
+  { mode: 'overview', label: 'Dashboard', subtitle: 'Overview of current situation', icon: LayoutDashboard },
   { mode: 'history', label: 'Historical Disasters', subtitle: 'Past incidents and records', icon: History },
   { mode: 'alerts', label: 'Notifications', subtitle: 'Alerts and updates', icon: Bell },
   { mode: 'threat', label: 'Disaster Assessment', subtitle: 'Threats and risk screening', icon: ClipboardCheck },

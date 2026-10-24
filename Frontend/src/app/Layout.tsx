@@ -34,6 +34,7 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
   const currentMode = routeModes[location.pathname as keyof typeof routeModes] ?? 'threat';
   const isHistoricalView = location.pathname === '/history';
   const isNotificationView = location.pathname === '/alerts';
+  const isRegionView = location.pathname === '/region-management';
 
   useEffect(() => {
     if (!isMobileSidebarOpen) return;
@@ -91,6 +92,7 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
         unreadAlertsCount={dashboard.unreadCount}
         currentUser={currentUser}
         onLogout={onLogout}
+         onOpenRegionPage={() => navigate("/region-management")}
       />
 
       <div className="flex min-w-0 flex-1 flex-row" style={{maxHeight: '80vh'}}>
@@ -162,7 +164,7 @@ export default function Layout({ currentUser, onLogout }: LayoutProps) {
               <button type="button" onClick={dashboard.resetSimulation} className="font-semibold underline underline-offset-2">Return to live data</button>
             </div>
           )}
-          {!isNotificationView && !isHistoricalView && (
+          {!isNotificationView && !isHistoricalView && !isRegionView && (
             <section className="bg-white border border-slate-200/90 rounded-2xl p-4 mb-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex min-w-0 items-center gap-3">
                 <div className="w-10 h-10 rounded-xl border bg-blue-50 border-blue-200 text-blue-600 flex items-center justify-center shrink-0">

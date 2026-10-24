@@ -23,6 +23,7 @@ import SimulatorPage from "../pages/SimulatorPage";
 import TasksPage from "../pages/TasksPage";
 import ThreatPage from "../pages/ThreatPage";
 import FieldOperationPage from '@/pages/FieldOperationPage';
+import RegionManagementPage from "@/pages/RegionPage";
 
 export default function AppRoutes() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -84,6 +85,7 @@ export default function AppRoutes() {
             <Route path="/simulator" element={<SimulatorPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
+            <Route path="/region-management" element={<RegionManagementPage  currentUserRole={currentUser?.roleId} />} />
              
 
             <Route index element={<Navigate to="/threat" replace />} />
