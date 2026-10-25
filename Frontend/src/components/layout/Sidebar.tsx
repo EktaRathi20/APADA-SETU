@@ -13,9 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import type { OperationalMode } from '@/types/domain';
-
-type ModuleKey = OperationalMode | 'history' | 'alerts';
-type RoleKey = 'assessment' | 'planner' | 'field' | 'recovery' | 'rescue' | 'unknown';
+import { getAllowedModules, SHARED_MODULES, type ModuleKey } from '@/utils/moduleAccess';
 
 interface SidebarProps {
   currentMode: OperationalMode;
@@ -40,34 +38,8 @@ interface ModuleItem {
   icon: React.ElementType;
 }
 
-const SHARED_MODULES: ModuleKey[] = ['overview', 'history', 'alerts'];
-
-const ROLE_CONFIG: Record<RoleKey, { modes: ModuleKey[] }> = {
-  // Role 1: Disaster Assessment Officer AND admin — access to every operational module.
-  assessment: {
-    modes: [...SHARED_MODULES, 'threat', 'tasks', 'fieldOps', 'landfall', 'recovery'],
-  },
-  planner: {
-    modes: [...SHARED_MODULES, 'threat', 'tasks'],
-  },
-  // Field Operations Officer gets a dedicated field reporting module.
-  field: {
-    modes: [...SHARED_MODULES, 'tasks', 'fieldOps'],
-  },
-  recovery: {
-    modes: [...SHARED_MODULES, 'recovery'],
-  },
-  rescue: {
-    modes: [...SHARED_MODULES, 'tasks', 'landfall'],
-  },
-  // Fail closed when the role is missing or unrecognised.
-  unknown: {
-    modes: SHARED_MODULES,
-  },
-};
-
 const MODULE_ITEMS: ModuleItem[] = [
-  { mode: 'overview', label: 'Situation Overview', subtitle: 'Situation at a glance', icon: LayoutDashboard },
+  { mode: 'overview', label: 'Dashboard', subtitle: 'Overview of current situation', icon: LayoutDashboard },
   { mode: 'history', label: 'Historical Disasters', subtitle: 'Past incidents and records', icon: History },
   { mode: 'alerts', label: 'Notifications', subtitle: 'Alerts and updates', icon: Bell },
   { mode: 'threat', label: 'Disaster Assessment', subtitle: 'Threats and risk screening', icon: ClipboardCheck },
@@ -76,31 +48,6 @@ const MODULE_ITEMS: ModuleItem[] = [
   { mode: 'landfall', label: 'Rescue & Relief Operations', subtitle: 'Deployment, rescue and shelters', icon: LifeBuoy },
   { mode: 'recovery', label: 'Recovery & Compensation', subtitle: 'Damage and claims', icon: Banknote },
 ];
-
-function resolveRole(roleId?: string | number, roleName?: string, roleLevel?: number): RoleKey {
-  const id = String(roleId ?? '').trim().toLowerCase();
-  const name = String(roleName ?? '').trim().toLowerCase();
-
-  const roleByValue: Record<string, RoleKey> = {
-    role_1: 'assessment', '1': 'assessment', 'disaster assessment officer': 'assessment',
-    role_2: 'planner', '2': 'planner', 'operations planner': 'planner',
-    role_3: 'field', '3': 'field', 'field operations officer': 'field',
-    role_4: 'recovery', '4': 'recovery', 'insurance recovery officer': 'recovery',
-    role_5: 'rescue', '5': 'rescue', 'rescue relief officer': 'rescue',
-  };
-
-  if (roleByValue[name]) return roleByValue[name];
-  if (roleByValue[id]) return roleByValue[id];
-  if (roleLevel !== undefined && roleLevel >= 1 && roleLevel <= 5) {
-    return roleByValue[String(roleLevel)] ?? 'unknown';
-  }
-  if (name.includes('disaster assessment') || name.includes('admin')) return 'assessment';
-  if (name.includes('planner')) return 'planner';
-  if (name.includes('field')) return 'field';
-  if (name.includes('insurance') || name.includes('recovery')) return 'recovery';
-  if (name.includes('rescue') || name.includes('relief')) return 'rescue';
-  return 'unknown';
-}
 
 export const Sidebar: React.FC<SidebarProps> = ({
   currentMode,
@@ -117,8 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   roleName,
   roleLevel,
 }) => {
-  const roleKey = resolveRole(roleId, roleName, roleLevel);
-  const roleConfig = ROLE_CONFIG[roleKey];
+  const allowedModules = getAllowedModules(roleId, roleName, roleLevel);
 
   const goToMode = (mode: OperationalMode) => {
     onSelectHistoricalView(false);
@@ -146,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const sharedItems = MODULE_ITEMS.filter((item) => SHARED_MODULES.includes(item.mode));
   const operationalItems = MODULE_ITEMS.filter(
-    (item) => !SHARED_MODULES.includes(item.mode) && roleConfig.modes.includes(item.mode),
+    (item) => !SHARED_MODULES.includes(item.mode) && allowedModules.includes(item.mode),
   );
 
   const itemClass = (active: boolean) =>

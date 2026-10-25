@@ -117,6 +117,6 @@ def require_current_user(authorization: str = Header(default="")):
     }
 
 
-@router.get("/api/me")
+@router.get("/me")
 def me(current_user: dict = Depends(require_current_user)):
     return {"user": current_user}

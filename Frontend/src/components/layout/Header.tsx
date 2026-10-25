@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ShieldCheck,
   MapPin,
   Bell,
   ChevronDown,
+  SlidersHorizontal,
   Menu,
   Settings,
   History,
@@ -27,6 +28,7 @@ interface HeaderProps {
   currentUser?: AuthUser;
   onLogout?: () => void;
   onOpenMobileNavigation: () => void;
+  onOpenRegionPage?: () => void;
   isMobileNavigationOpen: boolean;
 }
 
@@ -42,22 +44,17 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   onOpenMobileNavigation,
   isMobileNavigationOpen,
+  onOpenRegionPage,
 }) => {
-  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const cityDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (cityDropdownRef.current && !cityDropdownRef.current.contains(target)) {
-        setIsCityDropdownOpen(false);
-      }
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(target)) {
         setIsProfileDropdownOpen(false);
       }
@@ -68,7 +65,6 @@ export const Header: React.FC<HeaderProps> = ({
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsCityDropdownOpen(false);
         setIsProfileDropdownOpen(false);
         setIsNotificationsOpen(false);
       }
@@ -81,16 +77,6 @@ export const Header: React.FC<HeaderProps> = ({
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
-
-  const filteredCities = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    return availableCities.filter(
-      (city) =>
-        city.name.toLowerCase().includes(query) ||
-        city.region.toLowerCase().includes(query) ||
-        city.country.toLowerCase().includes(query),
-    );
-  }, [availableCities, searchQuery]);
 
   const officerName = currentUser?.name || "Signed-in Officer";
   const officerRole =
@@ -150,80 +136,25 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Utility navigation row */}
       <div className="bg-white">
         <div className="mx-auto flex min-h-[54px] max-w-[1800px] items-center justify-between gap-3 px-3 py-2 sm:px-5 lg:px-7">
-          {/* Region selector */}
-          <div ref={cityDropdownRef} className="relative min-w-0 flex-1 sm:max-w-md sm:flex-none">
-            <button
-              type="button"
-              aria-expanded={isCityDropdownOpen}
-              onClick={() => {
-                setIsCityDropdownOpen((open) => !open);
-                setIsNotificationsOpen(false);
-                setIsProfileDropdownOpen(false);
-              }}
-              className="flex w-full items-center gap-2 border border-slate-300 bg-slate-50 px-3 py-2 text-left text-xs text-slate-800 hover:border-slate-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18365b]"
-            >
+          {/* Current region + link to Region Management; no dropdown */}
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:max-w-md sm:flex-none">
+            <div className="flex min-w-0 flex-1 items-center gap-2 border border-slate-300 bg-slate-50 px-3 py-2 text-xs text-slate-800">
               <MapPin size={15} className="shrink-0 text-[#234d77]" />
-              <span className="min-w-0 flex-1 truncate font-semibold">
+              <span className="min-w-0 truncate font-semibold">
                 {selectedCity.name}, {selectedCity.region}, {selectedCity.country}
               </span>
-              <ChevronDown size={14} className="shrink-0 text-slate-500" />
+            </div>
+            <button
+              type="button"
+              onClick={() => onOpenRegionPage?.()}
+              title="Manage regions"
+              aria-label="Go to Region Management"
+              className="inline-flex shrink-0 items-center gap-1.5 border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-[#18365b] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18365b]"
+            >
+              <SlidersHorizontal size={14} />
+              <span className="hidden sm:inline">Manage regions</span>
+              <span className="sm:hidden">Regions</span>
             </button>
-
-            {isCityDropdownOpen && (
-              <div className="absolute left-0 top-full z-50 mt-1 w-full min-w-[260px] border border-slate-300 bg-white shadow-lg">
-                <div className="border-b border-slate-200 bg-slate-50 p-2.5">
-                  <label
-                    htmlFor="header-region-search"
-                    className="mb-1 block text-[11px] font-semibold text-slate-700"
-                  >
-                    Select operational region
-                  </label>
-                  <input
-                    id="header-region-search"
-                    type="text"
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder="Search city or region"
-                    className="w-full border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-[#18365b] focus:ring-1 focus:ring-[#18365b]"
-                    autoFocus
-                  />
-                </div>
-                <div className="max-h-64 overflow-y-auto">
-                  {filteredCities.length === 0 ? (
-                    <p className="px-3 py-4 text-xs text-slate-500">
-                      No matching regions found.
-                    </p>
-                  ) : (
-                    filteredCities.map((city) => {
-                      const selected = selectedCity.id === city.id;
-                      return (
-                        <button
-                          type="button"
-                          key={city.id}
-                          onClick={() => {
-                            onSelectCity(city);
-                            setIsCityDropdownOpen(false);
-                            setSearchQuery("");
-                          }}
-                          className={`block w-full border-b border-slate-100 px-3 py-2.5 text-left last:border-b-0 ${
-                            selected
-                              ? "border-l-2 border-l-[#18365b] bg-blue-50"
-                              : "hover:bg-slate-50"
-                          }`}
-                        >
-                          <span className="block text-xs font-semibold text-slate-800">
-                            {city.name}
-                          </span>
-                          <span className="mt-0.5 block text-[11px] text-slate-500">
-                            {city.region}, {city.country}
-                          </span>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Right-side actions */}
@@ -237,8 +168,7 @@ export const Header: React.FC<HeaderProps> = ({
                 aria-haspopup="dialog"
                 onClick={() => {
                   setIsNotificationsOpen((open) => !open);
-                  setIsCityDropdownOpen(false);
-                  setIsProfileDropdownOpen(false);
+                            setIsProfileDropdownOpen(false);
                 }}
                 className="relative inline-flex h-9 w-9 items-center justify-center border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18365b]"
               >
@@ -330,8 +260,7 @@ export const Header: React.FC<HeaderProps> = ({
                 aria-expanded={isProfileDropdownOpen}
                 onClick={() => {
                   setIsProfileDropdownOpen((open) => !open);
-                  setIsCityDropdownOpen(false);
-                  setIsNotificationsOpen(false);
+                            setIsNotificationsOpen(false);
                 }}
                 className="flex items-center gap-2 border border-transparent px-1.5 py-1 hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18365b]"
               >
