@@ -1,651 +1,619 @@
-
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  Check,
-  ChevronRight,
+  AlertCircle,
+  CheckCircle2,
+  Edit2,
+  Loader2,
   MapPin,
-  Search,
-  SlidersHorizontal,
-  Star,
-  Waves,
-  CloudLightning,
-  Flame,
-  ThermometerSun,
-  Mountain,
-  Activity,
-  Save,
   Plus,
-  Info,
-  ShieldCheck,
+  RefreshCw,
+  Save,
+  Trash2,
+  X,
 } from "lucide-react";
 
-type Region = {
-  id: string;
-  name: string;
-  type: "State" | "District" | "Block" | "Village / Ward";
-  parent: string;
-  code: string;
-  active: boolean;
-};
+import { regionApi } from "../services/regionApi";
+import type {
+  Region as ApiRegion,
+  Hazard,
+  RegionConfiguration,
+} from "../services/regionApi";
 
-const initialRegions: Region[] = [
-  {
-    id: "rajasthan",
-    name: "Rajasthan",
-    type: "State",
-    parent: "India",
-    code: "IN-RJ",
-    active: true,
-  },
-  {
-    id: "bikaner",
-    name: "Bikaner",
-    type: "District",
-    parent: "Rajasthan",
-    code: "DEMO-BKN",
-    active: true,
-  },
-  {
-    id: "jaipur",
-    name: "Jaipur",
-    type: "District",
-    parent: "Rajasthan",
-    code: "DEMO-JPR",
-    active: true,
-  },
-  {
-    id: "jodhpur",
-    name: "Jodhpur",
-    type: "District",
-    parent: "Rajasthan",
-    code: "DEMO-JDH",
-    active: true,
-  },
-  {
-    id: "gujarat",
-    name: "Gujarat",
-    type: "State",
-    parent: "India",
-    code: "IN-GJ",
-    active: true,
-  },
-];
-
-const hazardOptions = [
-  {
-    id: "flood",
-    label: "Flood",
-    description: "River, urban and flash flooding",
-    icon: Waves,
-  },
-  {
-    id: "cyclone",
-    label: "Cyclone / Storm",
-    description: "Severe storms and high winds",
-    icon: CloudLightning,
-  },
-  {
-    id: "fire",
-    label: "Fire",
-    description: "Urban, forest and industrial fire",
-    icon: Flame,
-  },
-  {
-    id: "heatwave",
-    label: "Heatwave",
-    description: "Extreme heat conditions",
-    icon: ThermometerSun,
-  },
-  {
-    id: "landslide",
-    label: "Landslide",
-    description: "Slope failure and debris flow",
-    icon: Mountain,
-  },
-  {
-    id: "earthquake",
-    label: "Earthquake",
-    description: "Seismic events and aftershocks",
-    icon: Activity,
-  },
-];
-
-interface RegionManagementPageProps {
-  initialDefaultRegionId?: string;
+interface RegionPageProps {
   currentUserRole?: string;
-  onSaveConfiguration?: (config: {
-    defaultRegionId: string;
-    enabledHazards: string[];
-    regions: Region[];
-  }) => Promise<void> | void;
+  initialDefaultRegionId?: string;
 }
 
-export default function RegionManagementPage({
-  initialDefaultRegionId = "bikaner",
+interface Region extends ApiRegion {
+  hazardIds?: string[];
+}
+
+interface RegionForm {
+  name: string;
+  code: string;
+  parentRegionId: string;
+  hazardIds: string[];
+}
+
+const isRoleOne = (role?: string) =>
+  ["role_1", "1", "level_1"].includes(
+    (role || "").toLowerCase().trim()
+  );
+
+const emptyForm: RegionForm = {
+  name: "",
+  code: "",
+  parentRegionId: "",
+  hazardIds: [],
+};
+
+const inputClass =
+  "mt-1 w-full border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#18365b] focus:ring-1 focus:ring-[#18365b]";
+
+export default function RegionPage({
   currentUserRole,
-  onSaveConfiguration,
-}: RegionManagementPageProps) {
-  // Only Role 1 can see the two administrative sections.
-  const canManageRegions =
-    currentUserRole === "role_1" ||
-    currentUserRole === "1" ||
-    currentUserRole === "level_1";
+  initialDefaultRegionId,
+}: RegionPageProps) {
+  const canManage = isRoleOne(currentUserRole);
 
-  const [regions, setRegions] = useState<Region[]>(initialRegions);
-  const [defaultRegionId, setDefaultRegionId] =
-    useState(initialDefaultRegionId);
-  const [enabledHazards, setEnabledHazards] = useState<string[]>(
-    hazardOptions.map((hazard) => hazard.id)
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [hazards, setHazards] = useState<Hazard[]>([]);
+  const [defaultRegionId, setDefaultRegionId] = useState<string | null>(
+    initialDefaultRegionId ?? null
   );
-  const [query, setQuery] = useState("");
-  const [scope, setScope] = useState("all");
+
+  const [form, setForm] = useState<RegionForm>(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [showAddRegion, setShowAddRegion] = useState(false);
-  const [newRegionName, setNewRegionName] = useState("");
-  const [newRegionType, setNewRegionType] =
-    useState<Region["type"]>("District");
-  const [newRegionParent, setNewRegionParent] = useState("Rajasthan");
 
-  const filteredRegions = useMemo(
-    () =>
-      regions.filter((region) => {
-        const matchesQuery = `${region.name} ${region.parent} ${region.code}`
-          .toLowerCase()
-          .includes(query.toLowerCase());
-
-        const matchesScope =
-          scope === "all" || region.type === scope;
-
-        return matchesQuery && matchesScope;
-      }),
-    [regions, query, scope]
-  );
-
-  const defaultRegion = regions.find(
+  const activeRegions = regions.filter((region) => region.active !== false);
+  const selectedDefault = regions.find(
     (region) => region.id === defaultRegionId
   );
 
-  const toggleHazard = (id: string) => {
-    setEnabledHazards((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id]
-    );
-    setMessage("");
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const [regionResult, hazardResult, config] = await Promise.all([
+        regionApi.getRegions(),
+        regionApi.getHazards(),
+        regionApi.getConfiguration(),
+      ]);
+
+      setRegions(regionResult.items as Region[]);
+      setHazards(hazardResult.items);
+
+      setDefaultRegionId(
+        config.defaultRegionId ?? initialDefaultRegionId ?? null
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to load regions."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [initialDefaultRegionId]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
+
+  const resetForm = () => {
+    setForm(emptyForm);
+    setEditingId(null);
+    setShowForm(false);
   };
 
-  const save = async () => {
-    if (!canManageRegions) return;
+  const openCreateForm = () => {
+    setError("");
+    setMessage("");
+    setForm(emptyForm);
+    setEditingId(null);
+    setShowForm(true);
+  };
+
+  const openEditForm = (region: Region) => {
+    setError("");
+    setMessage("");
+    setForm({
+      name: region.name || "",
+      code: region.code || "",
+      parentRegionId: region.parentRegionId || "",
+      hazardIds: region.hazardIds || [],
+    });
+    setEditingId(region.id);
+    setShowForm(true);
+  };
+
+  const toggleHazard = (hazardId: string) => {
+    setForm((current) => ({
+      ...current,
+      hazardIds: current.hazardIds.includes(hazardId)
+        ? current.hazardIds.filter((id) => id !== hazardId)
+        : [...current.hazardIds, hazardId],
+    }));
+  };
+
+  const saveRegion = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!canManage) return;
+
+    if (!form.name.trim()) {
+      setError("Region name is required.");
+      return;
+    }
+
+    if (form.hazardIds.length === 0) {
+      setError("Please select at least one hazard.");
+      return;
+    }
+
+    if (editingId && form.parentRegionId === editingId) {
+      setError("A region cannot be its own parent.");
+      return;
+    }
 
     setSaving(true);
+    setError("");
     setMessage("");
 
     try {
-      await onSaveConfiguration?.({
-        defaultRegionId,
-        enabledHazards,
-        regions,
-      });
+      const payload = {
+        name: form.name.trim(),
+        code: form.code.trim() || null,
+        parentRegionId: form.parentRegionId || null,
+        type: editingId
+          ? regions.find((region) => region.id === editingId)?.type || "district"
+          : "district",
+        active: editingId
+          ? regions.find((region) => region.id === editingId)?.active !== false
+          : true,
+        hazardIds: form.hazardIds,
+      };
 
-      setMessage(
-        onSaveConfiguration
-          ? "Configuration saved."
-          : "Draft saved in this page state. Connect onSaveConfiguration to your FastAPI/Firestore API to persist it."
+      if (editingId) {
+        await regionApi.updateRegion(editingId, payload);
+        setMessage("Region updated successfully.");
+      } else {
+        await regionApi.createRegion(payload);
+        setMessage("Region created successfully.");
+      }
+
+      resetForm();
+      await loadData();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to save region."
       );
-    } catch {
-      setMessage("Could not save configuration. Please retry.");
     } finally {
       setSaving(false);
     }
   };
 
-  const addRegion = () => {
-    if (!canManageRegions) return;
+  const deleteRegion = async (region: Region) => {
+    if (!canManage) return;
 
-    const name = newRegionName.trim();
-    if (!name) return;
-
-    const id = `${name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`;
-
-    setRegions((current) => [
-      ...current,
-      {
-        id,
-        name,
-        type: newRegionType,
-        parent: newRegionParent.trim() || "India",
-        code: "PENDING-LGD-CODE",
-        active: true,
-      },
-    ]);
-
-    setNewRegionName("");
-    setShowAddRegion(false);
-    setMessage(
-      "Region added to this page draft. Connect the LGD directory/API before using this as an official region record."
+    const confirmed = window.confirm(
+      `Delete region "${region.name}"? This action cannot be undone.`
     );
+
+    if (!confirmed) return;
+
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      await regionApi.deleteRegion(region.id);
+
+      if (editingId === region.id) resetForm();
+
+      setMessage("Region deleted successfully.");
+      await loadData();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to delete region."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
+  const saveDefault = async () => {
+    if (!defaultRegionId) {
+      setError("Please select a default region.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const config: RegionConfiguration = await regionApi.getConfiguration();
+
+      await regionApi.saveConfiguration({
+        ...config,
+        defaultRegionId,
+      });
+
+      setMessage("Default region saved successfully.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to save default region."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-64 items-center justify-center gap-3 bg-slate-50 text-sm text-slate-600">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        Loading regions...
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-full bg-[#f3f5f7] text-slate-800">
-      <div className="mx-auto w-full max-w-[1500px] space-y-5 p-3 sm:p-5 lg:p-6">
+    <div className="min-h-full bg-[#f3f5f7] p-4 text-slate-800 sm:p-6">
+      <div className="mx-auto max-w-6xl space-y-5">
+        {/* Messages */}
 
-        {/* Government portal page header */}
-        <div className="border border-slate-300 bg-white">
-          <div className="border-b-4 border-[#d88b2b] bg-[#18365b] px-4 py-4 text-white sm:px-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center border border-white/40 bg-white/5">
-                <MapPin size={21} />
-              </div>
-
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-100">
-                  APADA-SETU · Administration
-                </p>
-                <h1 className="mt-0.5 text-xl font-bold sm:text-2xl">
-                  Region Management
-                </h1>
-                <p className="mt-1 text-xs text-blue-100">
-                  Configure administrative regions and the default dashboard location.
-                </p>
-              </div>
-            </div>
+        {error && (
+          <div
+            role="alert"
+            className="flex items-start gap-2 border border-red-300 bg-red-50 p-3 text-sm text-red-800"
+          >
+            <AlertCircle size={17} className="mt-0.5 shrink-0" />
+            <span className="flex-1">{error}</span>
+            <button type="button" onClick={() => setError("")}>
+              <X size={16} />
+            </button>
           </div>
+        )}
 
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2.5 sm:px-6">
-            <p className="text-xs text-slate-600">
-              Administration / Region Management
-            </p>
-            <p className="text-xs text-slate-600">
-              APADA-SETU administrative portal
-            </p>
+        {message && (
+          <div
+            role="status"
+            className="flex items-center gap-2 border border-green-300 bg-green-50 p-3 text-sm text-green-800"
+          >
+            <CheckCircle2 size={17} />
+            <span>{message}</span>
           </div>
-        </div>
+        )}
 
-        {/* Visible to all roles: Default dashboard region */}
+        {/* Default region: all roles */}
+
         <section className="border border-slate-300 bg-white">
-          <div className="border-b border-slate-300 bg-[#edf1f5] px-4 py-3 sm:px-5">
-            <div className="flex items-start gap-3">
-              <div className="border border-slate-300 bg-white p-2 text-[#18365b]">
-                <MapPin size={19} />
-              </div>
-
-              <div>
-                <h2 className="font-bold text-slate-900">
-                  Default dashboard region
-                </h2>
-                <p className="mt-1 text-xs leading-5 text-slate-600">
-                  This region is selected when the dashboard opens.
-                  Users should only access regions authorised for them.
-                </p>
-              </div>
-            </div>
+          <div className="border-b border-slate-300 bg-slate-100 p-4">
+            <h2 className="font-bold">Default Dashboard Region</h2>
+            <p className="mt-1 text-xs text-slate-600">
+              Available to all roles.
+            </p>
           </div>
 
-          <div className="space-y-4 p-4 sm:p-5">
-            <label
-              className="block text-sm font-semibold text-slate-700"
-              htmlFor="default-region"
-            >
-              Select default region
-            </label>
-
-            <select
-              id="default-region"
-              value={defaultRegionId}
-              onChange={(event) => {
-                setDefaultRegionId(event.target.value);
-                setMessage("");
-              }}
-              className="w-full rounded-sm border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[#18365b] focus:ring-1 focus:ring-[#18365b]"
-            >
-              {regions
-                .filter((region) => region.active)
-                .map((region) => (
+          <div className="space-y-4 p-4">
+            <label className="block text-sm font-semibold">
+              Select region
+              <select
+                value={defaultRegionId ?? ""}
+                onChange={(event) =>
+                  setDefaultRegionId(event.target.value || null)
+                }
+                className={inputClass}
+              >
+                <option value="">Choose a region</option>
+                {activeRegions.map((region) => (
                   <option key={region.id} value={region.id}>
-                    {region.name} · {region.type}
+                    {region.name}
+                    {region.code ? ` (${region.code})` : ""}
                   </option>
                 ))}
-            </select>
+              </select>
+            </label>
 
-            <div className="border border-slate-300 bg-[#f5f8fb] p-3">
-              <div className="flex items-start gap-2">
-                <Star
-                  size={16}
-                  className="mt-0.5 shrink-0 text-[#18365b]"
-                />
-                <div>
-                  <p className="text-sm font-bold text-[#18365b]">
-                    Current default
-                  </p>
-                  <p className="mt-0.5 text-sm text-[#18365b]">
-                    {defaultRegion
-                      ? `${defaultRegion.name} · ${defaultRegion.type}`
-                      : "Choose a region"}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-700">
-                    {defaultRegion
-                      ? `Parent: ${defaultRegion.parent} · Code: ${defaultRegion.code}`
-                      : ""}
-                  </p>
-                </div>
+            <div className="flex flex-wrap items-center justify-between gap-3 border border-slate-200 bg-slate-50 p-3">
+              <div>
+                <p className="text-xs text-slate-500">Current default</p>
+                <p className="mt-1 font-semibold text-[#18365b]">
+                  {selectedDefault?.name || "No default selected"}
+                </p>
               </div>
-            </div>
 
-            <div className="flex items-start gap-2 border border-[#d88b2b] bg-[#fff8ed] p-3 text-xs leading-5 text-slate-800">
-              <Info size={16} className="mt-0.5 shrink-0" />
-              <p>
-                In production, validate the selected region against the
-                signed-in user's permissions and save the configuration
-                through the backend.
-              </p>
+              <button
+                type="button"
+                disabled={saving || !defaultRegionId}
+                onClick={() => void saveDefault()}
+                className="inline-flex items-center gap-2 bg-[#18365b] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#102846] disabled:opacity-50"
+              >
+                {saving ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Save size={16} />
+                )}
+                Set Default
+              </button>
             </div>
           </div>
         </section>
 
-        {/* Role 1 only: Hazard coverage */}
-        {canManageRegions && (
-          <section className="overflow-hidden border border-slate-300 bg-white">
-            <div className="border-b border-slate-300 bg-[#edf1f5] px-4 py-3 sm:px-5">
-              <div className="flex items-start gap-3">
-                <div className="border border-slate-300 bg-white p-2 text-[#18365b]">
-                  <ShieldCheck size={19} />
-                </div>
+        {/* Region management: Role 1 only */}
 
-                <div>
-                  <h2 className="font-bold text-slate-900">
-                    Hazard coverage
-                  </h2>
-                  <p className="mt-1 text-xs leading-5 text-slate-600">
-                    Enable the hazard categories used by APADA-SETU.
-                    Actual incidents remain separate records linked to a region.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2 p-4 sm:p-5">
-              {hazardOptions.map(
-                ({ id, label, description, icon: Icon }) => {
-                  const checked = enabledHazards.includes(id);
-
-                  return (
-                    <label
-                      key={id}
-                      className={`flex cursor-pointer items-start gap-3 border p-3 ${
-                        checked
-                          ? "border-slate-400 bg-[#f5f8fb]"
-                          : "border-slate-200 hover:bg-slate-50"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleHazard(id)}
-                        className="mt-1 h-4 w-4 accent-[#18365b]"
-                      />
-
-                      <span className="bg-white p-1.5 text-slate-700">
-                        <Icon size={17} />
-                      </span>
-
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-semibold text-slate-900">
-                          {label}
-                        </span>
-                        <span className="mt-0.5 block text-xs text-slate-500">
-                          {description}
-                        </span>
-                      </span>
-
-                      {checked && (
-                        <Check
-                          size={16}
-                          className="mt-0.5 text-[#18365b]"
-                        />
-                      )}
-                    </label>
-                  );
-                }
-              )}
-
-              <p className="pt-1 text-xs text-slate-500">
-                {enabledHazards.length} of {hazardOptions.length} hazard
-                categories enabled
-              </p>
-            </div>
-          </section>
-        )}
-
-        {/* Role 1 only: Configured regions */}
-        {canManageRegions && (
-          <section className="overflow-hidden border border-slate-300 bg-white">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 bg-[#edf1f5] px-4 py-4 sm:px-5">
+        {canManage && (
+          <section className="border border-slate-300 bg-white">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 bg-slate-100 p-4">
               <div>
-                <h2 className="font-bold text-slate-900">
-                  Configured regions
-                </h2>
+                <h2 className="font-bold">Regions</h2>
                 <p className="mt-1 text-xs text-slate-600">
-                  Search and review the region records currently loaded in this page.
+                  Create, edit or delete a region and its applicable hazards.
                 </p>
               </div>
 
               <button
                 type="button"
-                onClick={() => setShowAddRegion((open) => !open)}
-                className="inline-flex items-center gap-2 border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                onClick={showForm ? resetForm : openCreateForm}
+                className="inline-flex items-center gap-2 bg-[#18365b] px-3 py-2.5 text-sm font-semibold text-white hover:bg-[#102846]"
               >
-                <Plus size={16} />
-                Add region
+                {showForm ? <X size={16} /> : <Plus size={16} />}
+                {showForm ? "Cancel" : "Create Region"}
               </button>
             </div>
 
-            {showAddRegion && (
-              <div className="grid gap-3 border-b border-slate-300 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-4">
-                <label className="text-xs font-semibold text-slate-600">
-                  Region name
-                  <input
-                    value={newRegionName}
-                    onChange={(event) =>
-                      setNewRegionName(event.target.value)
-                    }
-                    placeholder="e.g. Ajmer"
-                    className="mt-1 block w-full border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-900"
-                  />
-                </label>
+            {/* Create/Edit form */}
 
-                <label className="text-xs font-semibold text-slate-600">
-                  Region type
-                  <select
-                    value={newRegionType}
-                    onChange={(event) =>
-                      setNewRegionType(
-                        event.target.value as Region["type"]
-                      )
-                    }
-                    className="mt-1 block w-full border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-900"
-                  >
-                    {(
-                      [
-                        "State",
-                        "District",
-                        "Block",
-                        "Village / Ward",
-                      ] as const
-                    ).map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
+            {showForm && (
+              <form onSubmit={saveRegion} className="space-y-4 border-b border-slate-300 bg-slate-50 p-4">
+                <h3 className="font-bold">
+                  {editingId ? "Edit Region" : "Create Region"}
+                </h3>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-medium">
+                    Region Name *
+                    <input
+                      required
+                      value={form.name}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          name: event.target.value,
+                        }))
+                      }
+                      placeholder="e.g. Jodhpur"
+                      className={inputClass}
+                    />
+                  </label>
+
+                  <label className="block text-sm font-medium">
+                    Region Code
+                    <input
+                      value={form.code}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          code: event.target.value,
+                        }))
+                      }
+                      placeholder="e.g. JDH"
+                      className={inputClass}
+                    />
+                  </label>
+
+                  <label className="block text-sm font-medium sm:col-span-2">
+                    Parent Region
+                    <select
+                      value={form.parentRegionId}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          parentRegionId: event.target.value,
+                        }))
+                      }
+                      className={inputClass}
+                    >
+                      <option value="">No parent region</option>
+                      {activeRegions
+                        .filter((region) => region.id !== editingId)
+                        .map((region) => (
+                          <option key={region.id} value={region.id}>
+                            {region.name}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                </div>
+
+                {/* Hazards belong to this region */}
+
+                <div className="border border-slate-300 bg-white p-3">
+                  <h4 className="text-sm font-semibold">
+                    Applicable Hazards *
+                  </h4>
+
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {hazards.map((hazard) => (
+                      <label
+                        key={hazard.id}
+                        className="flex cursor-pointer items-center gap-2 border border-slate-200 p-3 hover:bg-slate-50"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={form.hazardIds.includes(hazard.id)}
+                          onChange={() => {
+                            setForm((current) => ({
+                              ...current,
+                              hazardIds: current.hazardIds.includes(hazard.id)
+                                ? current.hazardIds.filter(
+                                    (id) => id !== hazard.id
+                                  )
+                                : [...current.hazardIds, hazard.id],
+                            }));
+                          }}
+                          className="h-4 w-4 accent-[#18365b]"
+                        />
+                        <span className="text-sm">{hazard.name}</span>
+                      </label>
                     ))}
-                  </select>
-                </label>
+                  </div>
 
-                <label className="text-xs font-semibold text-slate-600">
-                  Parent region
-                  <input
-                    value={newRegionParent}
-                    onChange={(event) =>
-                      setNewRegionParent(event.target.value)
-                    }
-                    placeholder="e.g. Rajasthan"
-                    className="mt-1 block w-full border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-900"
-                  />
-                </label>
+                  {hazards.length === 0 && (
+                    <p className="mt-2 text-sm text-amber-700">
+                      No hazards found. Check the hazard API.
+                    </p>
+                  )}
 
-                <div className="flex items-end">
+                  <p className="mt-2 text-xs text-slate-500">
+                    {form.hazardIds.length} hazard(s) selected
+                  </p>
+                </div>
+
+                <div className="flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={addRegion}
-                    className="w-full bg-[#18365b] px-3 py-2 text-sm font-semibold text-white hover:bg-[#102846]"
+                    onClick={resetForm}
+                    className="border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold"
                   >
-                    Add to draft
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={saving || hazards.length === 0}
+                    className="inline-flex items-center gap-2 bg-[#18365b] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+                  >
+                    {saving && (
+                      <Loader2 size={16} className="animate-spin" />
+                    )}
+                    {editingId ? "Update Region" : "Create Region"}
                   </button>
                 </div>
-              </div>
+              </form>
             )}
 
-            <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:px-5">
-              <div className="relative flex-1">
-                <Search
-                  size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search region, parent or code..."
-                  className="w-full border border-slate-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#18365b] focus:ring-1 focus:ring-[#18365b]"
-                />
-              </div>
+            {/* Region list */}
 
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal
-                  size={15}
-                  className="text-slate-500"
-                />
-                <select
-                  value={scope}
-                  onChange={(event) => setScope(event.target.value)}
-                  aria-label="Filter by region type"
-                  className="border border-slate-300 bg-white px-3 py-2 text-sm"
+            <div className="divide-y divide-slate-200">
+              {regions.map((region) => (
+                <div
+                  key={region.id}
+                  className="flex flex-wrap items-center justify-between gap-3 p-4"
                 >
-                  <option value="all">All types</option>
-                  <option value="State">State</option>
-                  <option value="District">District</option>
-                  <option value="Block">Block</option>
-                  <option value="Village / Ward">Village / Ward</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[620px] border-collapse text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-5 py-3 font-semibold">Region</th>
-                    <th className="px-5 py-3 font-semibold">Type</th>
-                    <th className="px-5 py-3 font-semibold">Parent</th>
-                    <th className="px-5 py-3 font-semibold">Directory code</th>
-                    <th className="px-5 py-3 font-semibold">Status</th>
-                    <th className="px-5 py-3 font-semibold">Default</th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-slate-100">
-                  {filteredRegions.map((region) => (
-                    <tr
-                      key={region.id}
-                      className="hover:bg-slate-50"
-                    >
-                      <td className="px-5 py-3.5 font-semibold text-slate-900">
-                        {region.name}
-                      </td>
-                      <td className="px-5 py-3.5 text-slate-600">
-                        {region.type}
-                      </td>
-                      <td className="px-5 py-3.5 text-slate-600">
-                        {region.parent}
-                      </td>
-                      <td className="px-5 py-3.5 font-mono text-xs text-slate-500">
-                        {region.code}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className="inline-flex items-center gap-1 border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
-                          <span className="h-1.5 w-1.5 bg-slate-500" />
-                          Active
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-900">
+                      {region.name}
+                      {region.id === defaultRegionId && (
+                        <span className="ml-2 text-xs font-medium text-green-700">
+                          Default
                         </span>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        {region.id === defaultRegionId ? (
-                          <span className="inline-flex items-center gap-1 font-semibold text-[#18365b]">
-                            <Star size={13} fill="currentColor" />
-                            Default
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setDefaultRegionId(region.id)
-                            }
-                            className="text-xs font-semibold text-[#18365b] underline underline-offset-2"
-                          >
-                            Set default
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                      )}
+                    </p>
 
-                  {filteredRegions.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className="px-5 py-10 text-center text-sm text-slate-500"
+                    <p className="mt-1 text-xs text-slate-500">
+                      Code: {region.code || "—"} · Parent:{" "}
+                      {region.parentName ||
+                        regions.find(
+                          (item) => item.id === region.parentRegionId
+                        )?.name ||
+                        "—"}
+                    </p>
+
+                    <p className="mt-1 text-xs text-slate-500">
+                      Hazards:{" "}
+                      {region.hazardIds?.length
+                        ? region.hazardIds
+                            .map(
+                              (id) =>
+                                hazards.find((hazard) => hazard.id === id)
+                                  ?.name || id
+                            )
+                            .join(", ")
+                        : "Not assigned"}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openEditForm(region)}
+                      className="inline-flex items-center gap-1 border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-[#18365b] hover:bg-slate-50"
+                    >
+                      <Edit2 size={14} />
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Delete region "${region.name}"?`
+                          )
+                        ) {
+                          void deleteRegion(region);
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      <Trash2 size={14} />
+                      Delete
+                    </button>
+
+                    {region.id !== defaultRegionId && (
+                      <button
+                        type="button"
+                        onClick={() => setDefaultRegionId(region.id)}
+                        className="border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-slate-50"
                       >
-                        No regions match your search.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                        Select Default
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {regions.length === 0 && (
+                <p className="p-8 text-center text-sm text-slate-500">
+                  No regions available. Create your first region.
+                </p>
+              )}
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-300 bg-slate-50 px-4 py-4 sm:px-5">
-              <p className="text-xs text-slate-500">
-                Showing {filteredRegions.length} region records · Sample data for UI preview
-              </p>
-
+            <div className="flex justify-end border-t border-slate-200 bg-slate-50 p-4">
               <button
                 type="button"
-                disabled={saving}
-                onClick={save}
-                className="inline-flex items-center justify-center gap-2 bg-[#18365b] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#102846] disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={saving || !defaultRegionId}
+                onClick={() => void saveDefault()}
+                className="inline-flex items-center gap-2 bg-[#18365b] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
               >
                 <Save size={16} />
-                {saving ? "Saving…" : "Save configuration"}
-                <ChevronRight size={15} />
+                Save Default Region
               </button>
             </div>
-
-            {message && (
-              <div
-                role="status"
-                className="border-t border-slate-200 px-5 py-3 text-sm text-slate-700"
-              >
-                {message}
-              </div>
-            )}
           </section>
         )}
 
-        <p className="text-xs leading-5 text-slate-500">
-          The included regions are sample UI data, not a complete official India directory.
-          For production, sync authoritative region codes from LGD and persist configuration
-          through FastAPI/Firestore.
-        </p>
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => void loadData()}
+            className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-[#18365b]"
+          >
+            <RefreshCw size={14} />
+            Refresh data
+          </button>
+        </div>
       </div>
     </div>
   );

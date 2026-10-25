@@ -83,6 +83,10 @@ All region-specific endpoints accept one of the keys returned by `GET /api/regio
 | --- | --- | --- |
 | GET | `/api/health` | Service health |
 | GET | `/api/region` | Region names and map bounds |
+| GET | `/api/regions` | Administrative regions used by Region Management |
+| POST | `/api/regions` | Add an administrative region (Role 1 bearer token required) |
+| GET | `/api/regions/configuration` | Current default region, enabled hazards, and region list |
+| PUT | `/api/regions/configuration` | Save region configuration (Role 1 bearer token required) |
 | GET | `/api/population?region=vizag` | WorldPop population result or source error |
 | GET | `/api/shelter?region=vizag` | Nearby hospitals, shelters, and Places diagnostics |
 | GET | `/api/current-conditions?region=vizag` | Current weather observation |
@@ -95,6 +99,8 @@ All region-specific endpoints accept one of the keys returned by `GET /api/regio
 | POST | `/api/whatsapp/verification/check` | Verify OTP and subscribe or unsubscribe the number |
 
 Supported region keys: `vizag`, `odisha` (Puri), `chennai`, `bengal` (Sundarbans), `gujarat` (Saurashtra), `paradip`, `gopalpur`, `kakinada`, `mumbai`, and `bay_of_bengal`.
+
+The administrative region API uses the Region Management page's `{id, name, type, parent, code, active}` records and supports `State`, `District`, `Block`, and `Village / Ward` types. Its starter records and configuration are held in process memory, so changes reset when the API restarts; use durable storage before production deployment. `/api/region` remains the map-boundary catalog used by dashboard data requests.
 
 ### Alert Producer Contract
 
